@@ -7,25 +7,37 @@ class Env4InRow(EnvironmentBase):
     Args:
         player1, player2: the players
         board_size (tuple): the size of the board.
+            board_size[0]: height
+            board_size[1]: width
     """
+
     def __init__(self, player1, player2, board_size):
         super(Env4InRow, self).__init__(player1, player2)
-        # TODO - implement everything!
+        self.board_size = board_size
+        self.board = [[0] * board_size[0]] * board_size[1]
 
     def reset(self):
-        pass
+        self.board = [[0] * self.board_size[0]] * self.board_size[1]
 
     def apply_action(self, player, action):
-        pass
+        if action in self.available_moves(player):
+            self.board[action[0]][action[1]] = player["symbol"]
+            # next state, reward
+            return self.board, 0
+        print("Wrong action")
 
     def render(self):
-        pass
+        for i in self.board:
+            print(i)
 
     def available_moves(self, player):
         pass
 
     def is_terminal_state(self):
-        pass
+        for player in [self.player1, self.player2]:
+            if self.available_moves(player) is None \
+                    or self.player_status(player) != 0:
+                return True
 
     def player_status(self, player):
         pass
