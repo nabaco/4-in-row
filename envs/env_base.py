@@ -6,14 +6,8 @@ class Environment:
     """
 
     def __init__(self, player1, player2):
-        self.player1 = {
-            "name": player1,
-            "symbol": 1
-        }
-        self.player2 = {
-            "name": player2,
-            "symbol": 2
-        }
+        self.player1 = player1
+        self.player2 = player2
 
     def reset(self):
         """
@@ -28,7 +22,7 @@ class Environment:
         Apply action as a player.
         Args:
             player: the player
-            action: the action (tuple)
+            action: the action
         Returns: tuple of (State, Reward)
             State - an observation of the next state.
             Reward for the action taken if the action is legal. # for now - return only 0.
