@@ -44,7 +44,7 @@ class Env4InRow(Environment):
 
     def is_terminal_state(self):
         for player in [self.player1, self.player2]:
-            if self.available_moves(player) is None \
+            if self.available_moves(player) == [] \
                     or self.player_status(player) != 0:
                 return True
 
