@@ -1,4 +1,5 @@
 from .env_base import Environment
+IN_ROW = 4
 
 
 class Env4InRow(Environment):
