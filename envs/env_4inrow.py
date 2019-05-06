@@ -18,39 +18,61 @@ class Env4InRow(EnvironmentBase):
         self.player2 = player2
         self.boardH = board_size[0]
         self.boardW = board_size[1]
-        self.board = [[0] * self.boardW] * self.boardH
+        self.board = [[0 for i in range(self.boardW)] for j in range(self.boardH)]
 
     def reset(self):
-        self.board = [[0] * self.boardW] * self.boardH
+        self.board = [[0 for i in range(self.boardW)] for j in range(self.boardH)]
         return self.board
 
     def apply_action(self, player, action):
-        if action in self.available_moves(player):
-            self.board[action[0]][action[1]] = player
-            # next state, reward
-            return self.board, 0
-        return None
+        for a in self.available_moves(player):
+            if action == a[1]:
+                self.board[a[0]][a[1]] = player
+                # next state, reward
+                return self.board, 0
 
     def render(self):
+        print(" ", end="")
+        for r in range(self.boardW):
+            print("{:1d} ".format(r), end="")
+        print()
+        count = 0
         for i in self.board:
-            print(i)
+            # print("_" * (self.boardW * 2 + 1))
+            print(str(count), end="")
+            count += 1
+            for j in i:
+                print("⃒", end="")
+                if j == self.player1:
+                    # Red
+                    print("\033[31m⬤\033[30m", end="")
+                elif j == self.player2:
+                    # Yellow
+                    print("\033[93m⬤\033[30m", end="")
+                else:
+                    print("\033[30m⬤\033[30m", end="")
+            print("⃒⃒\n", end="")
+        # print("_" * (self.boardW * 2 + 1))
 
     def available_moves(self, player):
         moves = []
-        for j in range(self.boardW):
-            for i in reversed(range(self.boardH)):
-                if not self.board[i][j]:
-                    moves.append((i, j))
+        if self.player_status(player) == 0 and not self.is_terminal_state():
+            for j in range(self.boardW):
+                for i in reversed(range(self.boardH)):
+                    if not self.board[i][j]:
+                        moves.append((i, j))
+                        break
         return moves
 
     def is_terminal_state(self):
-        for player in [self.player1, self.player2]:
-            if self.available_moves(player) == [] \
-                    or self.player_status(player):
-                return True
+        status = True
+        for i in range(self.boardW):
+            if self.board[self.boardH-1][i] == 0:
+                status = None
+                break
+        return status
 
     def player_status(self, player):
-
         # Iteration on each cell
         for i in reversed(range(self.boardH)):
             for j in range(self.boardW):
