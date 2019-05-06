@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from envs import Env4InRow
 
 player1 = "d"
