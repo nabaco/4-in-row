@@ -21,15 +21,20 @@ class Env4InRow(EnvironmentBase):
         self.player2 = player2
         self.boardH = board_size[0]
         self.boardW = board_size[1]
-        self.board = [[0 for i in range(self.boardW)] for j in range(self.boardH)]
+        self.board = [[0 for i in range(self.boardW)]
+                      for j in range(self.boardH)]
 
     def reset(self):
-        self.board = [[0 for i in range(self.boardW)] for j in range(self.boardH)]
+        self.board = [[0 for i in range(self.boardW)]
+                      for j in range(self.boardH)]
         return self.board
 
     def apply_action(self, player, action):
-        if any(action == a[1] for a in self.available_moves(player)):
-            self.board[a[0]][a[1]] = player
+        if action in self.available_moves(player):
+            for i in reversed(range(self.boardH)):
+                if not self.board[i][action]:
+                    self.board[i][action] = player
+                    break
             # next state, reward
             return self.board, 0
 
@@ -60,16 +65,13 @@ class Env4InRow(EnvironmentBase):
     def available_moves(self, player):
         moves = []
         if not self.player_status(player) and not self.is_terminal_state():
-            for j in range(self.boardW):
-                for i in reversed(range(self.boardH)):
-                    if not self.board[i][j]:
-                        moves.append((i, j))
-                        break
+            moves = [j for j in range(self.boardW) if not self.board[0][j]]
         return moves
 
     def is_terminal_state(self):
         status = True
-        if any(not cell for cell in self.board[0]):
+        if any(not cell for cell in self.board[0]) \
+                or not self.player_status(self.player1):
             status = False
         return status
 
@@ -78,7 +80,7 @@ class Env4InRow(EnvironmentBase):
         # initialize var
         symbol = 0
         count = 0
-        
+
         # row
         for i in range(self.boardH):
             for j in range(self.boardW):
@@ -154,5 +156,5 @@ class Env4InRow(EnvironmentBase):
                 i += 1
                 j += 1
             count = 0
-            
+
         return 0
