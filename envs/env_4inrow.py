@@ -1,5 +1,8 @@
 from .env_base import EnvironmentBase
 IN_ROW = 4
+RED = "\033[31m⬤\033[30m"
+YELLOW = "\033[93m⬤\033[30m"
+DEFAULT = "\033[30m⬤\033[30m"
 
 
 class Env4InRow(EnvironmentBase):
@@ -45,12 +48,13 @@ class Env4InRow(EnvironmentBase):
                 print("⃒", end="")
                 if j == self.player1:
                     # Red
-                    print("\033[31m⬤\033[30m", end="")
+                    print(RED, end="")
                 elif j == self.player2:
                     # Yellow
-                    print("\033[93m⬤\033[30m", end="")
+                    print(YELLOW, end="")
                 else:
-                    print("\033[30m⬤\033[30m", end="")
+                    # Default - empty
+                    print(DEFAULT, end="")
             print("⃒⃒\n", end="")
         # print("_" * (self.boardW * 2 + 1))
 
