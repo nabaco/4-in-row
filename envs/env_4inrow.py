@@ -28,11 +28,10 @@ class Env4InRow(EnvironmentBase):
         return self.board
 
     def apply_action(self, player, action):
-        for a in self.available_moves(player):
-            if action == a[1]:
-                self.board[a[0]][a[1]] = player
-                # next state, reward
-                return self.board, 0
+        if any(action == a[1] for a in self.available_moves(player)):
+            self.board[a[0]][a[1]] = player
+            # next state, reward
+            return self.board, 0
 
     def render(self):
         print(" ", end="")
@@ -60,7 +59,7 @@ class Env4InRow(EnvironmentBase):
 
     def available_moves(self, player):
         moves = []
-        if self.player_status(player) == 0 and not self.is_terminal_state():
+        if not self.player_status(player) and not self.is_terminal_state():
             for j in range(self.boardW):
                 for i in reversed(range(self.boardH)):
                     if not self.board[i][j]:
@@ -70,10 +69,8 @@ class Env4InRow(EnvironmentBase):
 
     def is_terminal_state(self):
         status = True
-        for i in range(self.boardW):
-            if self.board[self.boardH-1][i] == 0:
-                status = None
-                break
+        if any(not cell for cell in self.board[0]):
+            status = False
         return status
 
     def player_status(self, player):
