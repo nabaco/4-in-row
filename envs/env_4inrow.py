@@ -77,45 +77,85 @@ class Env4InRow(EnvironmentBase):
         return status
 
     def player_status(self, player):
-        # Iteration on each cell
-        for i in reversed(range(self.boardH)):
+
+        # initialize var
+        symbol = 0
+        count = 0
+        
+        # row
+        for i in range(self.boardH):
             for j in range(self.boardW):
-
-                # check if not zero and remember the cell symbol
-                if self.board[i][j]:
+                if self.board[i][j] == symbol:
+                    count += 1
+                    if count == IN_ROW:
+                        if symbol == player:
+                            return 1
+                        elif symbol:
+                            return -1
+                else:
                     symbol = self.board[i][j]
+                    count = 1
+            count = 0
 
-                    # check four in row: up
-                    if (i-IN_ROW+1) >= 0 \
-                            and all(self.board[i-k][j] == symbol for k in range(1, IN_ROW)):
+        # col
+        for j in range(self.boardW):
+            for i in range(self.boardH):
+                if self.board[i][j] == symbol:
+                    count += 1
+                    if count == IN_ROW:
                         if symbol == player:
                             return 1
-                        else:
+                        elif symbol:
                             return -1
+                else:
+                    symbol = self.board[i][j]
+                    count = 1
+            count = 0
 
-                    # check four in row: up-right
-                    if (i-IN_ROW+1) >= 0 \
-                            and (j+IN_ROW-1) < self.boardW \
-                            and all(self.board[i-k][j+k] == symbol for k in range(1, IN_ROW)):
+        # left-down diagonal
+        for k in range(IN_ROW - 1, self.boardW + self.boardH - IN_ROW):
+            if k < self.boardW:
+                i = 0
+                j = k
+            else:
+                i = k - self.boardW + 1
+                j = self.boardW - 1
+            while i < self.boardH and j >= 0:
+                if self.board[i][j] == symbol:
+                    count += 1
+                    if count == IN_ROW:
                         if symbol == player:
                             return 1
-                        else:
+                        elif symbol:
                             return -1
+                else:
+                    symbol = self.board[i][j]
+                    count = 1
+                i += 1
+                j -= 1
+            count = 0
 
-                    # check four in row: right
-                    if (j+IN_ROW-1) < self.boardW \
-                            and all(self.board[i][j+k] == symbol for k in range(1, IN_ROW)):
+        # right-up diagonal
+        for k in range(-self.boardH + IN_ROW, self.boardW - IN_ROW + 1):
+            if k < 0:
+                i = -k
+                j = 0
+            else:
+                i = 0
+                j = k
+            while i < self.boardH and j < self.boardW:
+                if self.board[i][j] == symbol:
+                    count += 1
+                    if count == IN_ROW:
                         if symbol == player:
                             return 1
-                        else:
+                        elif symbol:
                             return -1
-
-                    # check four in row: down-right
-                    if (i+IN_ROW-1) < self.boardH \
-                            and (j+IN_ROW-1) < self.boardW \
-                            and all(self.board[i+k][j+k] == symbol for k in range(1, IN_ROW)):
-                        if symbol == player:
-                            return 1
-                        else:
-                            return -1
+                else:
+                    symbol = self.board[i][j]
+                    count = 1
+                i += 1
+                j += 1
+            count = 0
+            
         return 0
