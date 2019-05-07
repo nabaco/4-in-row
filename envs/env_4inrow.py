@@ -134,7 +134,7 @@ class Env4InRow(EnvironmentBase):
                 j -= 1
             count = 0
 
-        # right-up diagonal
+        # right-down diagonal
         for k in range(-self.boardH + IN_ROW, self.boardW - IN_ROW + 1):
             if k < 0:
                 i = -k
