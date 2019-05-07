@@ -1,11 +1,11 @@
-from .env_base import EnvironmentBase
+from .env_base import Environment
 IN_ROW = 4
 RED = "\033[31m⬤\033[30m"
 YELLOW = "\033[93m⬤\033[30m"
 DEFAULT = "\033[30m⬤\033[30m"
 
 
-class Env4InRow(EnvironmentBase):
+class Env4InRow(Environment):
     """
     An environment representing a 4-in-row game.
     Args:

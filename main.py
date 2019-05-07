@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
-from envs import Env4InRow
+from envs import create_env
 
 player1 = "d"
 player2 = "n"
 width = 8
 height = 6
-game = Env4InRow(player1, player2, (height, width))
+game = create_env('4-in-row', player1, player2, board_size=(height, width))
 
 
 def play(player, action):

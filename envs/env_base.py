@@ -1,4 +1,4 @@
-class EnvironmentBase:
+class Environment:
     """
     Base class for all environments.
     Args:
