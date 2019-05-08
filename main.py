@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 
 from envs import create_env
+from agents import Agent
 
-player1 = "d"
-player2 = "n"
+
+class DummyAgent(Agent):
+
+    def choose_action(self, env):
+        pass
+
+
+player1 = DummyAgent('p1')
+player2 = DummyAgent('p2')
 width = 8
 height = 6
 game = create_env('4-in-row', player1, player2, board_size=(height, width))
@@ -40,22 +48,28 @@ for h in range(height):  # Test a vertical winning situation
 game.render()
 
 game.reset()
+# THIS `for h in range(height)` IS REDUNDANT!!!
 for h in range(height):  # Test a diagonal winning situation
     c = 0
     while game.player_status(player1) != 1 and c < width-1:
         play(player1, c)
-        for o in range(c):
+        for o in range(c-1):
             play(player2, c+1)
+            play(player1, 'pass')
+        play(player2, 'pass')
         c += 1
 game.render()
 
 game.reset()
+# THIS `for h in range(height)` IS REDUNDANT!!!
 for h in range(height):  # Test a reverse diagonal winning situation
-    c = width
+    c = width-1
     while game.player_status(player1) != 1 and c > 1:
         play(player1, c)
         for o in range(width-c):
             play(player2, c-1)
+            play(player1, 'pass')
+        play(player2, 'pass')
         c -= 1
 game.render()
 

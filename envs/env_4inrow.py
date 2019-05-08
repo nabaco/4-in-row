@@ -1,4 +1,5 @@
 from .env_base import Environment
+from collections import defaultdict
 IN_ROW = 4
 RED = "\033[31m⬤\033[30m"
 YELLOW = "\033[93m⬤\033[30m"
@@ -14,29 +15,62 @@ class Env4InRow(Environment):
             boardH: height
             boardW: width
     """
+    SYMBOL_COLORS = {
+        0: DEFAULT,
+        'x': RED,
+        'o': YELLOW
+    }
 
     def __init__(self, player1, player2, board_size):
         super(Env4InRow, self).__init__(player1, player2)
         self.player1 = player1
         self.player2 = player2
+        self.symbol2player = {
+            0: None,
+            'x': self.player1,
+            'o': self.player2
+        }
+        self.player2symbol = {
+            self.player1: 'x',
+            self.player2: 'o'
+        }
         self.boardH = board_size[0]
         self.boardW = board_size[1]
         self.board = [[0 for i in range(self.boardW)]
                       for j in range(self.boardH)]
+        self.current_player = player1
 
     def reset(self):
         self.board = [[0 for i in range(self.boardW)]
                       for j in range(self.boardH)]
-        return self.board
+        self.current_player = self.player1
+        return self.board, self.current_player
+
+    def switch_player(self):
+        self.current_player = self.player2 if self.current_player == self.player1 \
+            else self.player1
+
+    def get_symbol(self, player):
+        return self.player2symbol[player]
 
     def apply_action(self, player, action):
+        if action == 'pass':
+            self.switch_player()
+            return self.board, 0
+        if self.current_player != player:
+            # Not players turn - his move is illegal.
+            return None
+        symbol = self.get_symbol(player)
         if action in self.available_moves(player):
             for i in reversed(range(self.boardH)):
                 if not self.board[i][action]:
-                    self.board[i][action] = player
+                    self.board[i][action] = symbol
+                    self.switch_player()
                     break
             # next state, reward
             return self.board, 0
+        # Illegal move.
+        return None
 
     def render(self):
         print(" ", end="")
@@ -49,16 +83,7 @@ class Env4InRow(Environment):
             print(str(count), end="")
             count += 1
             for j in i:
-                print("⃒", end="")
-                if j == self.player1:
-                    # Red
-                    print(RED, end="")
-                elif j == self.player2:
-                    # Yellow
-                    print(YELLOW, end="")
-                else:
-                    # Default - empty
-                    print(DEFAULT, end="")
+                print("⃒%s" % Env4InRow.SYMBOL_COLORS[j], end="")
             print("⃒⃒\n", end="")
         # print("_" * (self.boardW * 2 + 1))
 
@@ -84,13 +109,10 @@ class Env4InRow(Environment):
         # row
         for i in range(self.boardH):
             for j in range(self.boardW):
-                if self.board[i][j] == symbol:
+                if self.board[i][j] == symbol and symbol:  # we only increment whenever the cell isn't empty
                     count += 1
                     if count == IN_ROW:
-                        if symbol == player:
-                            return 1
-                        elif symbol:
-                            return -1
+                        return 1 if self.symbol2player[symbol] == player else -1
                 else:
                     symbol = self.board[i][j]
                     count = 1
@@ -99,13 +121,10 @@ class Env4InRow(Environment):
         # col
         for j in range(self.boardW):
             for i in range(self.boardH):
-                if self.board[i][j] == symbol:
+                if self.board[i][j] == symbol and symbol:  # we only increment whenever the cell isn't empty
                     count += 1
                     if count == IN_ROW:
-                        if symbol == player:
-                            return 1
-                        elif symbol:
-                            return -1
+                        return 1 if self.symbol2player[symbol] == player else -1
                 else:
                     symbol = self.board[i][j]
                     count = 1
@@ -120,13 +139,10 @@ class Env4InRow(Environment):
                 i = k - self.boardW + 1
                 j = self.boardW - 1
             while i < self.boardH and j >= 0:
-                if self.board[i][j] == symbol:
+                if self.board[i][j] == symbol and symbol:  # we only increment whenever the cell isn't empty
                     count += 1
                     if count == IN_ROW:
-                        if symbol == player:
-                            return 1
-                        elif symbol:
-                            return -1
+                        return 1 if self.symbol2player[symbol] == player else -1
                 else:
                     symbol = self.board[i][j]
                     count = 1
@@ -143,13 +159,10 @@ class Env4InRow(Environment):
                 i = 0
                 j = k
             while i < self.boardH and j < self.boardW:
-                if self.board[i][j] == symbol:
+                if self.board[i][j] == symbol and symbol:  # we only increment whenever the cell isn't empty
                     count += 1
                     if count == IN_ROW:
-                        if symbol == player:
-                            return 1
-                        elif symbol:
-                            return -1
+                        return 1 if self.symbol2player[symbol] == player else -1
                 else:
                     symbol = self.board[i][j]
                     count = 1

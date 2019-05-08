@@ -21,6 +21,13 @@ class Agent:
         return "{0}({1}){2}".format(self.name, self.__class__.__name__,
                                     '\n' + self.extra_repr())
 
+    # Methods for making player accessible as a key for a dictionary:
+    def __hash__(self):
+        return hash(object.__repr__(self))
+
+    def __eq__(self, other):
+        return type(other) == type(self) and id(self) == id(other)
+
     def extra_repr(self):
         """
         Returns extra string representation of the current object.
