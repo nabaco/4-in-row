@@ -112,10 +112,10 @@ class TestEnv4InRow(object):
         game.apply_action(player1, 2)
         game.apply_action(player2, 1)
         game.apply_action(player1, 1)
-        game.apply_action(player2, 4)
-        game.apply_action(player1, 4)
-        game.apply_action(player2, 4)
-        game.apply_action(player1, 4)
+        game.apply_action(player2, 0)
+        game.apply_action(player1, 0)
+        game.apply_action(player2, 0)
+        game.apply_action(player1, 0)
 
         assert game.available_moves(player1) == []
         assert game.available_moves(player2) == []
@@ -138,8 +138,8 @@ class TestEnv4InRow(object):
 
         assert game.available_moves(player1) == []
         assert game.available_moves(player2) == []
-        assert game.player_status(player1) == 1
-        assert game.player_status(player2) == -1
+        assert game.player_status(player1) == 0
+        assert game.player_status(player2) == 0
         assert game.is_terminal_state() is True
         assert game.apply_action(player2, 4) is None
 
