@@ -1,95 +1,145 @@
 #!/usr/bin/env python3
 try:
     from ..envs import *
-except ImportError:
+except (ImportError, ValueError):
     import os
     import sys
-    sys.path.insert(0, os.path.abspath('..'))
+    parentdir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+    sys.path.insert(0, parentdir)
     from envs import *
 
 import pytest
 
 
 class TestEnv4InRow(object):
-    def play(self, player, action):
-        if not self.game.apply_action(player, action):
-            print("Wrong action!")
-        status = self.game.player_status(self.player1)
-        assert status is not None
-        if status == 1:
-            print("self.player1 won!")
-        elif status == -1:
-            print("self.player1 lost!")
-        if self.game.is_terminal_state():
-            print("self.game over(c)! Board is full!")
+    def test_game(self):
+        player1 = "d"
+        player2 = "n"
+        width = 4
+        height = 2
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+        assert game is not None, 'Failed to initialize environment'
+        game.render()  # Manual check
+        assert game.available_moves(player1) != []
+        assert game.available_moves(player2) != []
+        assert game.player_status(player1) == 0
+        assert game.player_status(player2) == 0
+        assert game.is_terminal_state() is False
+        game.apply_action(player1, 1)
+        game.apply_action(player2, 1)
+        game.render()  # Manual check
+        assert game.reset is not None
+        game.render()  # Manual check
 
     def test_horizontal_win(self):
-        self.player1 = "d"
-        self.player2 = "n"
-        self.width = 7
-        self.height = 6
-        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
-        assert self.game is not None, 'Failed to initialize environment'
-        self.game.render()  # Test initial rendering
-        print(self.game.available_moves(self.player1))  # Test available moves in the beginning
-        for h in range(self.height):  # Test a horizontal winning situation
-            c = 0
-            while self.game.player_status(self.player1) != 1 and c < self.width-1:
-                self.play(self.player1, c)
-                self.play(self.player2, c)
-                c += 1
-        self.game.render()  # Test final rendering
+        player1 = "d"
+        player2 = "n"
+        width = 4
+        height = 2
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+
+        print(game.available_moves(player1))  # Test available moves in the beginning
+        game.apply_action(player1, 0)
+        game.apply_action(player2, 0)
+        game.apply_action(player1, 1)
+        game.apply_action(player2, 1)
+        game.apply_action(player1, 2)
+        game.apply_action(player2, 2)
+        game.apply_action(player1, 3)
+
+        assert game.available_moves(player1) == []
+        assert game.available_moves(player2) == []
+        assert game.player_status(player1) == 1
+        assert game.player_status(player2) == -1
+        assert game.is_terminal_state() is True
+        assert game.apply_action(player2, 4) is None
 
     def test_vertical_win(self):
-        self.player1 = "d"
-        self.player2 = "n"
-        self.width = 7
-        self.height = 6
-        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
-        assert self.game is not None, 'Failed to initialize environment'
-        self.game.reset()
-        for h in range(self.height):  # Test a vertical winning situation
-            c = 0
-            while self.game.player_status(self.player1) != 1 and c < self.width-1:
-                self.play(self.player1, c)
-                self.play(self.player2, c+1)
-        self.game.render()
+        player1 = "d"
+        player2 = "n"
+        width = 2
+        height = 4
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+        for h in range(3):
+            game.apply_action(player1, 0)
+            game.apply_action(player2, 1)
+        game.apply_action(player1, 0)
+
+        assert game.available_moves(player1) == []
+        assert game.available_moves(player2) == []
+        assert game.player_status(player1) == 1
+        assert game.player_status(player2) == -1
+        assert game.is_terminal_state() is True
+        assert game.apply_action(player2, 4) is None
 
     def test_diagonal_win(self):
-        self.player1 = "d"
-        self.player2 = "n"
-        self.width = 7
-        self.height = 6
-        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
-        assert self.game is not None, 'Failed to initialize environment'
-        self.game.reset()
-        for h in range(self.height):  # Test a diagonal winning situation
-            c = 0
-            while self.game.player_status(self.player1) != 1 and c < self.width-1:
-                self.play(self.player1, c)
-                for o in range(c):
-                    self.play(self.player2, c+1)
-                c += 1
-        self.game.render()
+        player1 = "d"
+        player2 = "n"
+        width = 4
+        height = 4
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+
+        game.apply_action(player1, 0)
+        game.apply_action(player2, 1)
+        game.apply_action(player1, 1)
+        game.apply_action(player2, 2)
+        game.apply_action(player1, 1)
+        game.apply_action(player2, 2)
+        game.apply_action(player1, 2)
+        game.apply_action(player2, 3)
+        game.apply_action(player1, 3)
+        game.apply_action(player2, 3)
+        game.apply_action(player1, 3)
+
+        assert game.available_moves(player1) == []
+        assert game.available_moves(player2) == []
+        assert game.player_status(player1) == 1
+        assert game.player_status(player2) == -1
+        assert game.is_terminal_state() is True
+        assert game.apply_action(player2, 4) is None
 
     def test_reverse_diagonal_win(self):
-        self.player1 = "d"
-        self.player2 = "n"
-        self.width = 7
-        self.height = 6
-        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
-        assert self.game is not None, 'Failed to initialize environment'
-        self.game.reset()
-        for h in range(self.height):  # Test a reverse diagonal winning situation
-            c = self.width
-            while self.game.player_status(self.player1) != 1 and c > 1:
-                self.play(self.player1, c)
-                for o in range(self.width-c):
-                    self.play(self.player2, c-1)
-                c -= 1
-        self.game.render()
+        player1 = "d"
+        player2 = "n"
+        width = 4
+        height = 4
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+
+        game.apply_action(player1, 3)
+        game.apply_action(player2, 2)
+        game.apply_action(player1, 2)
+        game.apply_action(player2, 1)
+        game.apply_action(player1, 2)
+        game.apply_action(player2, 1)
+        game.apply_action(player1, 1)
+        game.apply_action(player2, 4)
+        game.apply_action(player1, 4)
+        game.apply_action(player2, 4)
+        game.apply_action(player1, 4)
+
+        assert game.available_moves(player1) == []
+        assert game.available_moves(player2) == []
+        assert game.player_status(player1) == 1
+        assert game.player_status(player2) == -1
+        assert game.is_terminal_state() is True
+        assert game.apply_action(player2, 4) is None
 
     def test_is_terminal_state(self):
-        # TODO: add a test for a full board - self.game.is_terminal_state()
-        pass
+        player1 = "d"
+        player2 = "n"
+        width = 2
+        height = 2
+        game = create_env('4-in-row', player1, player2, board_size=(height, width))
+
+        game.apply_action(player1, 0)
+        game.apply_action(player2, 0)
+        game.apply_action(player1, 1)
+        game.apply_action(player1, 1)
+
+        assert game.available_moves(player1) == []
+        assert game.available_moves(player2) == []
+        assert game.player_status(player1) == 1
+        assert game.player_status(player2) == -1
+        assert game.is_terminal_state() is True
+        assert game.apply_action(player2, 4) is None
 

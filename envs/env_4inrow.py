@@ -70,8 +70,9 @@ class Env4InRow(Environment):
 
     def is_terminal_state(self):
         status = True
-        if any(not cell for cell in self.board[0]) \
-                or not self.player_status(self.player1):
+        if any(cell == 0 for cell in self.board[0]) \
+                or self.player_status(self.player1) == 0 \
+                or self.player_status(self.player2) == 0:
             status = False
         return status
 
