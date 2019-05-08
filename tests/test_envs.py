@@ -1,19 +1,16 @@
 #!/usr/bin/env python3
+try:
+    from ..envs import *
+except ImportError:
+    import os
+    import sys
+    sys.path.insert(0, os.path.abspath('..'))
+    from envs import *
 
-from ..envs import *
 import pytest
 
 
 class TestEnv4InRow(object):
-    
-    def __init__(self):
-        self.player1 = "d"
-        self.player2 = "n"
-        self.width = 7
-        self.height = 6
-        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
-        assert self.game is not None, 'Failed to initialize environment'
-
     def play(self, player, action):
         if not self.game.apply_action(player, action):
             print("Wrong action!")
@@ -27,6 +24,12 @@ class TestEnv4InRow(object):
             print("self.game over(c)! Board is full!")
 
     def test_horizontal_win(self):
+        self.player1 = "d"
+        self.player2 = "n"
+        self.width = 7
+        self.height = 6
+        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
+        assert self.game is not None, 'Failed to initialize environment'
         self.game.render()  # Test initial rendering
         print(self.game.available_moves(self.player1))  # Test available moves in the beginning
         for h in range(self.height):  # Test a horizontal winning situation
@@ -38,6 +41,12 @@ class TestEnv4InRow(object):
         self.game.render()  # Test final rendering
 
     def test_vertical_win(self):
+        self.player1 = "d"
+        self.player2 = "n"
+        self.width = 7
+        self.height = 6
+        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
+        assert self.game is not None, 'Failed to initialize environment'
         self.game.reset()
         for h in range(self.height):  # Test a vertical winning situation
             c = 0
@@ -47,6 +56,12 @@ class TestEnv4InRow(object):
         self.game.render()
 
     def test_diagonal_win(self):
+        self.player1 = "d"
+        self.player2 = "n"
+        self.width = 7
+        self.height = 6
+        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
+        assert self.game is not None, 'Failed to initialize environment'
         self.game.reset()
         for h in range(self.height):  # Test a diagonal winning situation
             c = 0
@@ -58,6 +73,12 @@ class TestEnv4InRow(object):
         self.game.render()
 
     def test_reverse_diagonal_win(self):
+        self.player1 = "d"
+        self.player2 = "n"
+        self.width = 7
+        self.height = 6
+        self.game = create_env('4-in-row', self.player1, self.player2, board_size=(self.height, self.width))
+        assert self.game is not None, 'Failed to initialize environment'
         self.game.reset()
         for h in range(self.height):  # Test a reverse diagonal winning situation
             c = self.width
@@ -71,3 +92,4 @@ class TestEnv4InRow(object):
     def test_is_terminal_state(self):
         # TODO: add a test for a full board - self.game.is_terminal_state()
         pass
+
