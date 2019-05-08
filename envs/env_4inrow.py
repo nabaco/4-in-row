@@ -1,5 +1,4 @@
 from .env_base import Environment
-from collections import defaultdict
 IN_ROW = 4
 RED = "\033[31m⬤\033[30m"
 YELLOW = "\033[93m⬤\033[30m"

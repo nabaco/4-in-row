@@ -20,6 +20,8 @@ game = create_env('4-in-row', player1, player2, board_size=(height, width))
 def play(player, action):
     if not game.apply_action(player, action):
         print("Wrong action!")
+    if action == 'pass':
+        return
     status = game.player_status(player1)
     if status == 1:
         print("Player1 won!")
@@ -49,28 +51,26 @@ game.render()
 
 game.reset()
 # THIS `for h in range(height)` IS REDUNDANT!!!
-for h in range(height):  # Test a diagonal winning situation
-    c = 0
-    while game.player_status(player1) != 1 and c < width-1:
-        play(player1, c)
-        for o in range(c-1):
-            play(player2, c+1)
-            play(player1, 'pass')
-        play(player2, 'pass')
-        c += 1
+c = 0
+while game.player_status(player1) != 1 and c < width-1:
+    play(player1, c)
+    for o in range(c-1):
+        play(player2, c+1)
+        play(player1, 'pass')
+    play(player2, 'pass')
+    c += 1
 game.render()
 
 game.reset()
 # THIS `for h in range(height)` IS REDUNDANT!!!
-for h in range(height):  # Test a reverse diagonal winning situation
-    c = width-1
-    while game.player_status(player1) != 1 and c > 1:
-        play(player1, c)
-        for o in range(width-c):
-            play(player2, c-1)
-            play(player1, 'pass')
-        play(player2, 'pass')
-        c -= 1
+c = width-1
+while game.player_status(player1) != 1 and c > 1:
+    play(player1, c)
+    for o in range(width-c):
+        play(player2, c-1)
+        play(player1, 'pass')
+    play(player2, 'pass')
+    c -= 1
 game.render()
 
 # TODO: add a test for a full board - game.is_terminal_state()
