@@ -69,11 +69,11 @@ class Env4InRow(Environment):
         return moves
 
     def is_terminal_state(self):
-        status = True
-        if any(cell == 0 for cell in self.board[0]) \
-                or self.player_status(self.player1) == 0 \
-                or self.player_status(self.player2) == 0:
-            status = False
+        status = False
+        if all(cell for cell in self.board[0])\
+                or self.player_status(self.player1)\
+                or self.player_status(self.player1):
+            status = True
         return status
 
     def player_status(self, player):
