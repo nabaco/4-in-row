@@ -72,7 +72,7 @@ class Env4InRow(Environment):
         status = False
         if all(cell for cell in self.board[0])\
                 or self.player_status(self.player1)\
-                or self.player_status(self.player1):
+                or self.player_status(self.player2):
             status = True
         return status
 
