@@ -1,6 +1,6 @@
 language: python
 python:
-  - '3.5'
+  - '3.6'
 script:
-  - chmod +x main.py
-  - ./main.py
+  - cd tests
+  - pytest
