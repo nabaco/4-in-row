@@ -32,8 +32,10 @@ class TestEnv4InRow(object):
         assert game.player_status(player1) == 0
         assert game.player_status(player2) == 0
         assert game.is_terminal_state() is False
-        game.apply_action(player1, 1)
-        game.apply_action(player2, 1)
+        assert game.apply_action(player1, 1) is not None
+        assert game.apply_action(player1, 1) is None
+        assert game.apply_action(player2, 1) is not None
+        assert game.apply_action(player2, 1) is None
         game.render()  # Manual check
         assert game.reset is not None
         game.render()  # Manual check
