@@ -17,23 +17,23 @@ class HumanAgent(Agent):
         # create list of available moves
         available_moves = env.available_moves(self)
 
-        # check if the list are empty
-        if not available_moves:
-            print("No moves available for player {}".format(self))
-            return None
+        # check if the list are not empty
+        if available_moves:
 
-        # action of the player
-        while True:
-            print("Please choose your action from the list below and press ENTER:")
-            for act in available_moves:
-                print(act)
-            move = input()
+            # action of the player
+            while True:
+                print("Please choose your action from the list below and press ENTER:")
+                for act in available_moves:
+                    print(act)
+                move = input()
 
-            # check input
-            if move == 'q':
-                sys.exit(0)
-            try:
-                raise int(move) in available_moves
-                return int(move)
-            except:
-                print("Wrong input, try again or quit (q)")
+                # check input
+                if move == 'q':
+                    sys.exit(0)
+                try:
+                    assert int(move) in available_moves
+                    return int(move)
+                except:
+                    print("Wrong input, try again or quit (q)")
+
+        print("No moves available for player {}".format(self))
