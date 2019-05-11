@@ -56,3 +56,14 @@ class Environment:
         otherwise returns 0.
         """
         raise NotImplementedError
+
+    def get_observation(self):
+        """
+        Returns an observation of the current state.
+        """
+        raise NotImplementedError
+
+    def copy(self):
+        """
+        Returns a complete copy of this environment.
+        """

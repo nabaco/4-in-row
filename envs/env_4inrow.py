@@ -1,4 +1,5 @@
 from .env_base import Environment
+from copy import deepcopy
 IN_ROW = 4
 RED = "\033[31m⬤\033[30m"
 YELLOW = "\033[93m⬤\033[30m"
@@ -43,7 +44,7 @@ class Env4InRow(Environment):
         self.board = [[0 for i in range(self.boardW)]
                       for j in range(self.boardH)]
         self.current_player = self.player1
-        return self.board, self.current_player
+        return self.board
 
     def switch_player(self):
         self.current_player = self.player2 if self.current_player == self.player1 \
@@ -171,3 +172,12 @@ class Env4InRow(Environment):
             count = 0
 
         return 0
+
+    def get_observation(self):
+        return self.board
+
+    def copy(self):
+        result = Env4InRow(self.player1, self.player2, (self.boardH, self.boardW))
+        result.current_player = self.current_player
+        result.board = deepcopy(self.board)
+        return result
