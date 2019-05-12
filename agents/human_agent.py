@@ -38,3 +38,4 @@ class HumanAgent(Agent):
                     print("Wrong input, try again or quit (q)")
 
         print("No moves available for player {}".format(self))
+        return None

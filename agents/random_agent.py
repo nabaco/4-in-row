@@ -15,3 +15,4 @@ class RandomAgent(Agent):
         available_moves = env.available_moves(self)
         if available_moves:
             return random.choice(available_moves)
+        return None
