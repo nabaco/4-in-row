@@ -23,16 +23,17 @@ class HumanAgent(Agent):
             # action of the player
             while True:
                 print("Please choose your action from the list below and press ENTER:")
-                for act in available_moves:
-                    print(act)
+                print(" # | col")
+                print("---------")
+                for act in enumerate(available_moves):
+                    print(" {0} |  {1}".format(act[0], act[1]))
                 move = input()
 
                 # check input
                 if move == 'q':
                     sys.exit(0)
                 try:
-                    assert int(move) in available_moves
-                    return int(move)
+                    return available_moves[int(move)]
                 except:
                     print("Wrong input, try again or quit (q)")
 
