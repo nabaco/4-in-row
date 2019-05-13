@@ -37,11 +37,11 @@ class HumanAgent(Agent):
                     return available_moves[int(move)-1]
                 except (ValueError, IndexError, AssertionError) as error:
                     if isinstance(error, ValueError):
-                        print("The input must be a integer, try again or quit (q)")
+                        print("The input must be an integer, try again or quit (q)")
                     elif isinstance(error, IndexError):
                         print("The input must be from a moves list, try again or quit (q)")
                     elif isinstance(error, AssertionError):
-                        print("The input must be a positive number , try again or quit (q)")
+                        print("The input must be a positive number, try again or quit (q)")
                     
 
         print("No moves available for player {}".format(self))
