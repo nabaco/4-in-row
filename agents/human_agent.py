@@ -15,7 +15,7 @@ class HumanAgent(Agent):
 
     def choose_action(self, env):
         # create list of available moves
-        available_moves = env.available_moves(self)
+        available_moves = list(env.available_moves(self))
 
         # check if the list are not empty
         if available_moves:
@@ -26,16 +26,23 @@ class HumanAgent(Agent):
                 print(" # | col")
                 print("---------")
                 for act in enumerate(available_moves):
-                    print(" {0} |  {1}".format(act[0], act[1]))
+                    print(" {0} |  {1}".format(act[0]+1, act[1]))
                 move = input()
 
                 # check input
                 if move == 'q':
                     sys.exit(0)
                 try:
-                    return available_moves[int(move)]
-                except:
-                    print("Wrong input, try again or quit (q)")
+                    assert int(move) > 0
+                    return available_moves[int(move)-1]
+                except (ValueError, IndexError, AssertionError) as error:
+                    if isinstance(error, ValueError):
+                        print("The input must be a integer, try again or quit (q)")
+                    elif isinstance(error, IndexError):
+                        print("The input must be from a moves list, try again or quit (q)")
+                    elif isinstance(error, AssertionError):
+                        print("The input must be a positive number , try again or quit (q)")
+                    
 
         print("No moves available for player {}".format(self))
         return None
