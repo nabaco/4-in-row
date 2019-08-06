@@ -88,18 +88,16 @@ class MinimaxAgent(SearchAgentBase):
             timer.start()
 
             # search for a best move with the best value in the next node
-            best_move = {"move": None, "val": -float("inf")}
+            best_move = {"move": available_moves[0], "val": -float("inf")}
             for move in available_moves:
                 child = env.copy()
                 child.apply_action(self, move)
-                val = self.max_value(child, self.search_depth - 1)
+                val = self.min_value(child, self.search_depth - 1)
                 if val > best_move["val"]:
                     best_move["move"] = move
                     best_move["val"] = val
             timer.cancel()
             # return the best move
-            if best_move["val"] == -float("inf"):
-                return move[0]
             return best_move["move"]
 
         # if we don't have available moves return None
