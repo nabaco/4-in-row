@@ -49,11 +49,11 @@ class MinimaxAgent(SearchAgentBase):
 
     def max_value(self, node, depth):
 
-        # check terminal state or max search depth
+        # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
             return self.score_fn(node, self)
 
-        # return MAX value of children nodes
+        # Return MAX value of children nodes
         val = -float("inf")
         for move in node.available_moves(node.current_player):
             child = node.copy()
@@ -63,11 +63,11 @@ class MinimaxAgent(SearchAgentBase):
 
     def min_value(self, node, depth):
 
-        # check terminal state or max search depth
+        # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
             return self.score_fn(node, self)
 
-        # return MIN value of children nodes
+        # Return MIN value of children nodes
         val = float("inf")
         for move in node.available_moves(node.current_player):
             child = node.copy()
@@ -75,32 +75,17 @@ class MinimaxAgent(SearchAgentBase):
             val = min(val, self.max_value(child, depth - 1))
         return val
 
+    def minimax(self, env, available_moves):
+        timer = Timer(self.timeout, self.timeout_error)
+        timer.start()
+        best_move = max(available_moves, key=self.max_value)
+        timer.cancel()
+        return best_move
+
     def choose_action(self, env):
-
-        # create list of available moves
         available_moves = list(env.available_moves(self))
-
-        # check if we have available moves at all
         if available_moves:
-
-            # start timeout timer
-            timer = Timer(self.timeout, self.timeout_error)
-            timer.start()
-
-            # search for a best move with the best value in the next node
-            best_move = {"move": available_moves[0], "val": -float("inf")}
-            for move in available_moves:
-                child = env.copy()
-                child.apply_action(self, move)
-                val = self.min_value(child, self.search_depth - 1)
-                if val > best_move["val"]:
-                    best_move["move"] = move
-                    best_move["val"] = val
-            timer.cancel()
-            # return the best move
-            return best_move["move"]
-
-        # if we don't have available moves return None
+            return self.minimax(env, available_moves)
         return None
 
 
