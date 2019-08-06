@@ -5,7 +5,6 @@ import random
 class RandomAgent(Agent):
     """
     An agent that takes legal actions randomly.
-    TODO - implement everything
     """
 
     def __init__(self, name):
