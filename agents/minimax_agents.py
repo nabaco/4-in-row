@@ -72,7 +72,7 @@ class MinimaxAgent(SearchAgentBase):
         # create list of available moves
         available_moves = list(env.available_moves(self))
 
-        # check if we have available moves
+        # check if we have available moves at all
         if available_moves:
 
             # search for a best move with the best value in the next node
@@ -80,7 +80,7 @@ class MinimaxAgent(SearchAgentBase):
             for move in available_moves:
                 new_node = env.copy()
                 new_node.applay_action(move)
-                val = self.minimax(new_node, self.search_depth, max_agent=False)
+                val = self.minimax(new_node, self.search_depth - 1, max_agent=False)
                 if val > best_move["val"]:
                     best_move["move"] = move
                     best_move["val"] = val
