@@ -39,10 +39,58 @@ class SearchAgentBase(Agent):
 class MinimaxAgent(SearchAgentBase):
     """
     This agent implements the minimax algorithm, described in the book AIMA (3rd edition): Chapter 5.2.
-    TODO - Implement!
     """
+
+    def minimax(self, node, search_depth, max_agent = False):
+        
+        # check terminal state or max search depth
+        if node.is_terminal_state or search_depth == 0:
+            return self.score_fn(node, self)
+
+        # return MAX value of children nodes
+        if max_agent:
+            val = -float("inf")
+            for move in node.available_moves:
+                new_node = node.copy()
+                new_node.applay_action(self, move)
+                val = max(val, self.minimax(new_node, search_depth - 1, max_agent = False))
+
+        # return MIN value of children nodes
+        else:
+            val = float("inf")
+            node.switch_player()
+            for move in node.available_moves:
+                new_node = node.copy()
+                new_node.applay_action(self, move)
+                val = min(val, self.minimax(new_node, search_depth - 1, max_agent = True))
+
+        return val
+
+
     def choose_action(self, env):
-        pass
+
+        # create list of available moves
+        available_moves = list(env.available_moves(self))
+
+        # check if we have available moves
+        if available_moves:
+
+            # search for a best move with the best value in the next node
+            best_move = {"move":None, "val":-float("inf")}
+            for move in available_moves:
+                new_node = env.copy()
+                new_node.applay_action(move)
+                val = self.minimax(new_node, self.search_depth, max_agent=False)
+                if val > best_move["val"]:
+                    best_move["move"] = move
+                    best_move["val"] = val
+
+            # return the best move
+            return best_move["move"]
+
+        # if we don't have available moves return None
+        return None
+        
 
 
 class AlphaBetaPruningAgent(SearchAgentBase):
