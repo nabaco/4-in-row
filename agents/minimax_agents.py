@@ -1,9 +1,15 @@
 from .agent_base import Agent
 # Note - from this point on, we refer to the book 'Artificial Intelligence: a Modern Approach' as AIMA.
 
-from threading import Timer
+import time
 DEFAULT_SEARCH_DEPTH = 3  # Maximum depth of the search
 TIMEOUT = 10.  # Maximum time for the agent to search through the state space
+
+
+class PlayerTimeout(Exception):
+    def __init__(self, player, message=""):
+        super(PlayerTimeout, self).__init__(message)
+        self.player = player
 
 
 def default_score_fn(env, player):
@@ -25,8 +31,8 @@ def default_score_fn(env, player):
             return float("inf")
         if env.player_status(player) < 0:
             return -float("inf")
-        return 0.
-    return 0.
+        return 0
+    return 0
 
 
 class SearchAgentBase(Agent):
@@ -48,12 +54,11 @@ class MinimaxAgent(SearchAgentBase):
     """
     This agent implements the minimax algorithm, described in the book AIMA (3rd edition): Chapter 5.2.
     """
-    @staticmethod
-    def timeout_error():
-        """function to arise TimeError"""
-        raise TimeoutError
 
     def max_value(self, node, depth):
+        # Check timeout
+        if time.time() - self.start_time > self.timeout:
+            PlayerTimeout(self)
 
         # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
@@ -68,6 +73,9 @@ class MinimaxAgent(SearchAgentBase):
         return val
 
     def min_value(self, node, depth):
+        # Check timeout
+        if time.time() - self.start_time > self.timeout:
+            PlayerTimeout(self)
 
         # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
@@ -82,18 +90,17 @@ class MinimaxAgent(SearchAgentBase):
         return val
 
     def minimax(self, env, move, depth):
-        timer = Timer(self.timeout, self.timeout_error)
-        timer.start()
         child = env.copy()
         child.apply_action(self, move)
         val = self.min_value(child, depth - 1)
-        timer.cancel()
         return val
 
     def choose_action(self, env):
+        self.start_time = time.time()
         available_moves = list(env.available_moves(self))
         if available_moves:
-            best_move = max(available_moves, key = lambda x: self.minimax(env, x, self.search_depth))
+            best_move = max(available_moves, key=lambda x: self.minimax(
+                env, x, self.search_depth))
             return best_move
         return None
 
