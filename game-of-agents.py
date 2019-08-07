@@ -15,9 +15,9 @@ def inrow_heuristic(env, player, weight=0):
     """
     # Check terminal state
     if env.is_terminal_state():
-        if env.available_moves(player) > 0:
+        if env.player_status(player) > 0:
             return float("inf")
-        elif env.available_moves(player) < 0:
+        elif env.player_status(player) < 0:
             return -float("inf")
         else:
             return 0
@@ -40,7 +40,7 @@ def inrow_heuristic(env, player, weight=0):
                     # Function to count len of symbols array that we have in some direction
                     def counter(i, j, env, direc, depth, np):
                         counter = 0
-                        for k in (1, depth):
+                        for k in range(1, depth):
                             i_k = i + np * direc[0] * k
                             j_k = j + np * direc[1] * k
                             if 0 <= i_k < env.boardH and \
