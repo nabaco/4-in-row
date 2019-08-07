@@ -20,6 +20,12 @@ def default_score_fn(env, player):
     Note:
         the score may be infinite! using infinite scores to represent winning/losing states may be beneficial!
     """
+    if env.is_terminal_state():
+        if env.player_status(player) > 0:
+            return float("inf")
+        if env.player_status(player) < 0:
+            return -float("inf")
+        return 0.
     return 0.
 
 

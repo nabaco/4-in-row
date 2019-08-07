@@ -17,10 +17,9 @@ def inrow_heuristic(env, player, weight=0):
     if env.is_terminal_state():
         if env.player_status(player) > 0:
             return float("inf")
-        elif env.player_status(player) < 0:
+        if env.player_status(player) < 0:
             return -float("inf")
-        else:
-            return 0
+        return 0
 
     score = 0
     directions = {"hor": (0, 1),
