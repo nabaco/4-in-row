@@ -1,5 +1,6 @@
 ﻿from envs import *
 from agents import *
+from itertools import product
 
 
 def inrow_heuristic(env, player, weight=0):
@@ -51,7 +52,7 @@ def inrow_heuristic(env, player, weight=0):
     # return score of the env by weight.
     # If weight > 0: the agent is passive!
     # If weight < 0: the agent is aggressive!
-    # If weight = 0: the agent is static!
+    # If weight = 0: the agent is neutral!
     if weight > 0:
         return score*weight if score > 0 else score
     elif weight < 0:
@@ -79,3 +80,59 @@ def counter(i, j, env, direc, depth, np, player):
         else:
             break
     return counter
+
+
+# Initial parameters
+WEIGHT = 1.5
+depths = [1, 3, 5, 7]
+timers = [1e-9, 1, 3, 10]
+astratege = [WEIGHT, 1, 0, -WEIGHT]
+
+def wraper(env, player):
+    return inrow_heuristic(env, player, 1)
+
+# Create list of players
+players = [RandomAgent("random")]
+for depth in depths:
+    for time in timers:
+            players.append(MinimaxAgent(
+                f"minimax_depth{depth}_time{time}_weight{WEIGHT}", depth, wraper, time))
+
+
+def tournament(players):
+    result_table = []
+    for pair in product(players, repeat=2):
+        result = match(pair[0], pair[1])
+        result_table.append({"players": pair, "result": result})
+    return result_table
+
+
+def match(player1, player2):
+    board = create_env('4-in-row', player1, player2, (6, 7))
+    try:
+        while not board.is_terminal_state():
+            board.apply_action(player1, player1.choose_action(board))
+            board.apply_action(player2, player2.choose_action(board))
+        return board.player_status(player1), board.player_status(player2)
+    except TimeoutError:
+        return "TimeoutError"
+
+    return board.player_status(player1), board.player_status(player2)
+
+result_table = tournament(players)
+print("Result of the tournament:")
+print("--------------------------------------------")
+for match in result_table:
+    print("palyer 1: {}".format(match["players"][0]))
+    print("player 2: {}".format(match["players"][1]))
+    if match["result"] == "TimeoutError":
+        print("TimeoutError")
+    elif match["result"][0] > 0:
+        print("player 1 won!")
+        print("player 2 loss...")
+    elif match["result"][1] > 0:
+        print("player 1 loss...")
+        print("player 2 won!")
+    else:
+        print("draw")
+    print("--------------------------------------------")
