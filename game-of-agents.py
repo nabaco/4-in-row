@@ -2,7 +2,7 @@
 from agents import *
 
 
-def inrow_heuristic(env, player, weight):
+def inrow_heuristic(env, player, weight=0):
     """
     Score system:
         win = inf
