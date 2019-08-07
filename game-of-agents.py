@@ -86,45 +86,64 @@ def counter(i, j, env, direc, depth, np, player):
 WEIGHT = 1.5
 depths = [1, 3, 5, 7]
 timers = [1e-9, 1, 3, 10]
-astratege = [WEIGHT, 1, 0, -WEIGHT]
 
-def wraper(env, player):
+
+def aggressive_heuristic(env, player):
+    return inrow_heuristic(env, player, WEIGHT)
+
+
+def passive_heuristic(env, player):
+    return inrow_heuristic(env, player, -WEIGHT)
+
+
+def neutral_heuristic(env, player):
     return inrow_heuristic(env, player, 1)
 
-# Create list of players
+
+def default_heuristic(env, player):
+    return inrow_heuristic(env, player, 0)
+
+
+heuristics = {"aggressive": aggressive_heuristic,
+              "passive": passive_heuristic,
+              "neutral": neutral_heuristic,
+              "default": default_heuristic}
+
+
 players = [RandomAgent("random")]
-for depth in depths:
-    for time in timers:
-            players.append(MinimaxAgent(
-                f"minimax_depth{depth}_time{time}_weight{WEIGHT}", depth, wraper, time))
+for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items()):
+    players.append(MinimaxAgent(
+        f"minimax agent, depth = {depth}, heuristic = {heuristic_name}", depth, heuristic_func, 0))
 
 
-def tournament(players):
+def tournament(players, timers):
     result_table = []
-    for pair in product(players, repeat=2):
-        result = match(pair[0], pair[1])
-        result_table.append({"players": pair, "result": result})
+    for time, (player1, player2) in product(timers, product(players, players)):
+        result = match(player1, player2, time)
+        result_table.append({"players": (player1, player2),
+                             "time": time, "result": result})
     return result_table
 
 
-def match(player1, player2):
+def match(player1, player2, timeout):
+    player1.timeout = timeout
+    player2.timeout = timeout
     board = create_env('4-in-row', player1, player2, (6, 7))
     try:
         while not board.is_terminal_state():
             board.apply_action(player1, player1.choose_action(board))
             board.apply_action(player2, player2.choose_action(board))
         return board.player_status(player1), board.player_status(player2)
-    except TimeoutError:
-        return "TimeoutError"
+    except PlayerTimeout as ex:
+        if ex.player == player1:
+            return (-1, 1)
+        return (1, -1)
 
-    return board.player_status(player1), board.player_status(player2)
 
-result_table = tournament(players)
-print("Result of the tournament:")
-print("--------------------------------------------")
-for match in result_table:
+def render(match):
     print("palyer 1: {}".format(match["players"][0]))
     print("player 2: {}".format(match["players"][1]))
+    print("time: {}".format(match["time"]))
     if match["result"] == "TimeoutError":
         print("TimeoutError")
     elif match["result"][0] > 0:
@@ -136,3 +155,10 @@ for match in result_table:
     else:
         print("draw")
     print("--------------------------------------------")
+
+
+result_table = tournament(players, timers)
+print("Result of the tournament:")
+print("--------------------------------------------")
+for match in result_table:
+    render(match)
