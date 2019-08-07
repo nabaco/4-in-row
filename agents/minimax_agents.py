@@ -75,17 +75,20 @@ class MinimaxAgent(SearchAgentBase):
             val = min(val, self.max_value(child, depth - 1))
         return val
 
-    def minimax(self, env, available_moves):
+    def minimax(self, env, move, depth):
         timer = Timer(self.timeout, self.timeout_error)
         timer.start()
-        best_move = max(available_moves, key=self.max_value)
+        child = env.copy()
+        child.apply_action(self, move)
+        val = self.min_value(child, depth - 1)
         timer.cancel()
-        return best_move
+        return val
 
     def choose_action(self, env):
         available_moves = list(env.available_moves(self))
         if available_moves:
-            return self.minimax(env, available_moves)
+            best_move = max(available_moves, key = lambda x: self.minimax(env, x, self.search_depth))
+            return best_move
         return None
 
 
