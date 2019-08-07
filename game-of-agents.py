@@ -118,7 +118,7 @@ for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items(
 
 def tournament(players, timers):
     result_table = []
-    for time, (player1, player2) in product(timers, product(players, players)):
+    for player1, player2, time in product(players, players, timers):
         result = match(player1, player2, time)
         result_table.append({"players": (player1, player2),
                              "time": time, "result": result})
