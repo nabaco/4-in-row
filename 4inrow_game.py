@@ -54,6 +54,7 @@ def user_input(message, input_type, options):
             except (ValueError, AssertionError):
                 pass
         print("Ooops... Invalid input. Please try again or quit (q)")
+        
 
 
 def create_opponent():
