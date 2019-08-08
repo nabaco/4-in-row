@@ -54,7 +54,6 @@ def user_input(message, input_type, options):
             except (ValueError, AssertionError):
                 pass
         print("Ooops... Invalid input. Please try again or quit (q)")
-        
 
 
 def create_opponent():
@@ -110,10 +109,7 @@ def create_players():
         "\t(c) Computer\n"\
         "\t"
     first_player = user_input(first_player_message, 'c', ('y', 'c'))
-    if first_player == 'y':
-        return user, opponent
-    if first_player == 'c':
-        return opponent, user
+    return (user, opponent) if first_player == 'y' else (opponent, user)
 
 
 def inrow_game():
@@ -123,21 +119,29 @@ def inrow_game():
 
     # Start the game
     start_time = time()
-    while not board.is_terminal_state():
-        print(
-            f"{player1.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
-        board.render()
-        board.apply_action(player1, player1.choose_action(board))
-        print(
-            f"{player2.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
-        board.render()
-        board.apply_action(player2, player2.choose_action(board))
-    total_time = time() - start_time
+    try:
+        while not board.is_terminal_state():
+            print(
+                f"{player1.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
+            board.render()
+            board.apply_action(player1, player1.choose_action(board))
+            print(
+                f"{player2.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
+            board.render()
+            board.apply_action(player2, player2.choose_action(board))
+
+    # Except to the computer timeout
+    except PlayerTimeout as to:
+        print(f"The time of {to.player.name} is out.")
+        user_name = player1.name if to.player == player2 else player2.name
+        print(f"{user_name} won!, {to.player.name} loss...")
+        return None
 
     # Print the result
+    total_time = time() - start_time
     if board.player_status(player1) > 0:
         print(f"{player1.name} won!, {player2.name} loss...")
-    elif board.player_status(player2) > 0:
+    elif board.player_status(player1) < 0:
         print(f"{player2.name} won!, {player1.name} loss...")
     else:
         print("draw")
