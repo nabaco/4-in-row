@@ -1,8 +1,10 @@
 ﻿from envs import *
 from agents import *
 from itertools import product
+from time import time
 
 
+# Heuristic function for "4 in row" game
 def inrow_heuristic(env, player, weight=0):
     """
     Score system:
@@ -20,6 +22,9 @@ def inrow_heuristic(env, player, weight=0):
             return float("inf")
         if env.player_status(player) < 0:
             return -float("inf")
+        return 0
+
+    if weight == 0:
         return 0
 
     score = 0
@@ -61,7 +66,7 @@ def inrow_heuristic(env, player, weight=0):
         return score
 
 
-# Function to count len of symbols array that we have in some direction
+# Helper function to count len of symbols array that we have in some direction
 def counter(i, j, env, direc, depth, np, player):
     counter = 0
     for k in range(1, depth):
@@ -82,83 +87,97 @@ def counter(i, j, env, direc, depth, np, player):
     return counter
 
 
-# Initial parameters
-WEIGHT = 1.5
-depths = [1, 3, 5, 7]
-timers = [1e-9, 1, 3, 10]
-
-
-def aggressive_heuristic(env, player):
+# Wrapper functions to define different heuristic strategics
+def aggressive_heuristic(env, player):  # Aggressive strategy
     return inrow_heuristic(env, player, WEIGHT)
 
 
-def passive_heuristic(env, player):
+def passive_heuristic(env, player):  # Passive strategy
     return inrow_heuristic(env, player, -WEIGHT)
 
 
-def neutral_heuristic(env, player):
+def neutral_heuristic(env, player):  # Neutral strategy
     return inrow_heuristic(env, player, 1)
 
 
-def default_heuristic(env, player):
+def zero_heuristic(env, player):  # Zero strategy
     return inrow_heuristic(env, player, 0)
 
 
 heuristics = {"aggressive": aggressive_heuristic,
               "passive": passive_heuristic,
               "neutral": neutral_heuristic,
-              "default": default_heuristic}
+              "zero": zero_heuristic}
 
 
-players = [RandomAgent("random")]
-for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items()):
-    players.append(MinimaxAgent(
-        f"minimax agent, depth = {depth}, heuristic = {heuristic_name}", depth, heuristic_func, 0))
-
-
+# Function to play a game for each pair of players with different timers
 def tournament(players, timers):
-    result_table = []
-    for player1, player2, time in product(players, players, timers):
-        result = match(player1, player2, time)
-        result_table.append({"players": (player1, player2),
-                             "time": time, "result": result})
-    return result_table
+    for player1, player2, timeout in product(players, players, timers):
+        result = game(player1, player2, timeout)
+        yield {"players": (player1, player2),
+               "timeout": timeout,
+               "result": result["result"],
+               "game-time": result["total-time"],
+               }
 
-
-def match(player1, player2, timeout):
+# Play a single game
+def game(player1, player2, timeout):
+    # Define timeout and create board
     player1.timeout = timeout
     player2.timeout = timeout
     board = create_env('4-in-row', player1, player2, (6, 7))
+
+    # Try to play the game
     try:
+        start_time = time()
         while not board.is_terminal_state():
             board.apply_action(player1, player1.choose_action(board))
             board.apply_action(player2, player2.choose_action(board))
-        return board.player_status(player1), board.player_status(player2)
+        total_time = time() - start_time
+        return {"result": (board.player_status(player1), board.player_status(player2)),
+                "total-time": total_time}
+
+    # Except timeout
     except PlayerTimeout as ex:
         if ex.player == player1:
-            return (-1, 1)
-        return (1, -1)
+            return {"result": (-1, 1), "total-time": "Player1 Timeout"}
+        return {"result": (1, -1), "total-time": "Player2 Timeout"}
 
 
-def render(match):
-    print("palyer 1: {}".format(match["players"][0]))
-    print("player 2: {}".format(match["players"][1]))
-    print("time: {}".format(match["time"]))
-    if match["result"] == "TimeoutError":
-        print("TimeoutError")
-    elif match["result"][0] > 0:
-        print("player 1 won!")
-        print("player 2 loss...")
+# Print the result of the match
+def render(num, match):
+    print(f"Match number: # {num + 1}")
+    print("Palyer 1: {}".format(match["players"][0].name))
+    print("Player 2: {}".format(match["players"][1].name))
+    print("Timeout: {} (sec)".format(match["timeout"]))
+    print("Total time of the match: {} (sec)".format(match["game-time"]))
+    if match["result"][0] > 0:
+        print("Player 1 won!")
+        print("Player 2 loss...")
     elif match["result"][1] > 0:
-        print("player 1 loss...")
-        print("player 2 won!")
+        print("Player 1 loss...")
+        print("Player 2 won!")
     else:
         print("draw")
     print("--------------------------------------------")
 
 
-result_table = tournament(players, timers)
+# Initial parameters
+WEIGHT = 1.5
+depths = [1, 3, 5, 7]
+timers = [1e-9, 1e-3, 0.1, 1]
+
+
+# Create list of all players with different initial parameters
+players = [RandomAgent("random")]
+for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items()):
+    players.append(MinimaxAgent(
+        f"minimax agent, depth = {depth}, heuristic = {heuristic_name}", depth, heuristic_func, 0))
+print("List of players was created Successfly")
+
+
 print("Result of the tournament:")
 print("--------------------------------------------")
-for match in result_table:
-    render(match)
+for num, match in enumerate(tournament(players, timers)):
+    render(num, match)
+print("Done")
