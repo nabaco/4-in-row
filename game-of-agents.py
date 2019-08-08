@@ -112,13 +112,30 @@ heuristics = {"aggressive": aggressive_heuristic,
 
 # Function to play a game for each pair of players with different timers
 def tournament(players, timers):
+
+    # Remember the pair of agents that got timeout
+    timeout_detector = None, None
+
+    # Run over all combination of players and timers
     for player1, player2, timeout in product(players, players, timers):
+
+        # Check if the player1 == player2 and if this pair of agents got timeout in previous match
+        if player1 == player2 or timeout_detector == (player1, player2):
+            continue
+
+        # Play the game and return the result
         result = game(player1, player2, timeout)
+        if result["total-time"] == "Player1 Timeout" or\
+                result["total-time"] == "Player2 Timeout":
+            timeout_detector = player1, player2
+
         yield {"players": (player1, player2),
                "timeout": timeout,
                "result": result["result"],
                "game-time": result["total-time"],
+               "actions": result["actions"],
                }
+
 
 # Play a single game
 def game(player1, player2, timeout):
@@ -128,20 +145,24 @@ def game(player1, player2, timeout):
     board = create_env('4-in-row', player1, player2, (6, 7))
 
     # Try to play the game
+    actions = 0
     try:
         start_time = time()
         while not board.is_terminal_state():
-            board.apply_action(player1, player1.choose_action(board))
-            board.apply_action(player2, player2.choose_action(board))
+            if board.apply_action(player1, player1.choose_action(board)):
+                actions += 1
+            if board.apply_action(player2, player2.choose_action(board)):
+                actions += 1
         total_time = time() - start_time
         return {"result": (board.player_status(player1), board.player_status(player2)),
-                "total-time": total_time}
+                "total-time": total_time,
+                "actions": actions}
 
     # Except timeout
     except PlayerTimeout as ex:
         if ex.player == player1:
-            return {"result": (-1, 1), "total-time": "Player1 Timeout"}
-        return {"result": (1, -1), "total-time": "Player2 Timeout"}
+            return {"result": (-1, 1), "total-time": "Player1 Timeout", "actions": actions}
+        return {"result": (1, -1), "total-time": "Player2 Timeout", "actions": actions}
 
 
 # Print the result of the match
@@ -151,6 +172,7 @@ def render(num, match):
     print("Player 2: {}".format(match["players"][1].name))
     print("Timeout: {} (sec)".format(match["timeout"]))
     print("Total time of the match: {} (sec)".format(match["game-time"]))
+    print("Total actions of the players: {}".format(match["actions"]))
     if match["result"][0] > 0:
         print("Player 1 won!")
         print("Player 2 loss...")
@@ -165,7 +187,7 @@ def render(num, match):
 # Initial parameters
 WEIGHT = 1.5
 depths = [1, 3, 5, 7]
-timers = [1e-9, 1e-3, 0.1, 1]
+timers = [3, 2, 1, 0.1]
 
 
 # Create list of all players with different initial parameters
