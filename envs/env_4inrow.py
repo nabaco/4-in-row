@@ -1,9 +1,19 @@
+import platform
+
 from .env_base import Environment
 from copy import deepcopy
+
 IN_ROW = 4
-RED = "\033[31m⬤\033[30m"
-YELLOW = "\033[93m⬤\033[30m"
-DEFAULT = "\033[30m⬤\033[30m"
+if platform.system() == 'Windows':
+    RED = "O"
+    YELLOW = "X"
+    DEFAULT = "⬤"
+    DELIMITER = "|"
+else:
+    RED = "\033[31m⬤\033[30m"
+    YELLOW = "\033[93m⬤\033[30m"
+    DEFAULT = "\033[30m⬤\033[30m"
+    DELIMITER = "⃒"
 
 
 class Env4InRow(Environment):
@@ -83,8 +93,8 @@ class Env4InRow(Environment):
             print(str(count), end="")
             count += 1
             for j in i:
-                print("⃒%s" % Env4InRow.SYMBOL_COLORS[j], end="")
-            print("⃒⃒\n", end="")
+                print("%s%s" % (DELIMITER, Env4InRow.SYMBOL_COLORS[j]), end="")
+            print("%s\n" % DELIMITER, end="")
         # print("_" * (self.boardW * 2 + 1))
 
     def available_moves(self, player):
