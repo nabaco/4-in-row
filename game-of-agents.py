@@ -190,16 +190,16 @@ depths = [1, 3, 5, 7]
 timers = [3, 2, 1, 0.1]
 
 
-# Create list of all players with different initial parameters
-players = [RandomAgent("random")]
-for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items()):
-    players.append(MinimaxAgent(
-        f"minimax agent, depth = {depth}, heuristic = {heuristic_name}", depth, heuristic_func, 0))
-print("List of players was created Successfly")
+if __name__ == "__main__":
+    # Create list of all players with different initial parameters
+    players = [RandomAgent("random")]
+    for depth, (heuristic_name, heuristic_func) in product(depths, heuristics.items()):
+        players.append(MinimaxAgent(
+            f"minimax agent, depth = {depth}, heuristic = {heuristic_name}", depth, heuristic_func, 0))
+    print("List of players was created Successfly")
 
-
-print("Result of the tournament:")
-print("--------------------------------------------")
-for num, match in enumerate(tournament(players, timers)):
-    render(num, match)
-print("Done")
+    print("Results of the tournament:")
+    print("--------------------------------------------")
+    for num, match in enumerate(tournament(players, timers)):
+        render(num, match)
+    print("Done")
