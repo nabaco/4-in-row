@@ -58,7 +58,7 @@ class MinimaxAgent(SearchAgentBase):
     def max_value(self, node, depth):
         # Check timeout
         if time.time() - self.start_time > self.timeout:
-            PlayerTimeout(self)
+            raise PlayerTimeout(self)
 
         # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
@@ -75,7 +75,7 @@ class MinimaxAgent(SearchAgentBase):
     def min_value(self, node, depth):
         # Check timeout
         if time.time() - self.start_time > self.timeout:
-            PlayerTimeout(self)
+            raise PlayerTimeout(self)
 
         # Check terminal state or max search depth
         if node.is_terminal_state() or depth == 0:
