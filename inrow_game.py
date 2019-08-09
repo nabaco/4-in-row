@@ -163,5 +163,4 @@ if __name__ == "__main__":
     user = HumanAgent(user_name)
     while True:
         inrow_game(user)
-        user_exit_message = "Please start new game (n)"
-        user_input(user_exit_message, 'c', ('n'))
+        user_input("Please start new game (n)", 'c', ('n'))
