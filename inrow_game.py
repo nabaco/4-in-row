@@ -68,7 +68,7 @@ def create_opponent():
 
     # Random
     if opp_type == 'r':
-        return RandomAgent("random")
+        return RandomAgent("Random")
 
     # Minimax
     if opp_type == 'm':
@@ -91,18 +91,14 @@ def create_opponent():
             opp_strategy_message, 'c', ('a', 'p', 'n', 'z'))
 
         # Return the minimax agent
-        return MinimaxAgent("minimax", opp_depth, heuristics[opp_strategy], opp_timer)
+        return MinimaxAgent("Minimax", opp_depth, heuristics[opp_strategy], opp_timer)
 
     if opp_type == 'a':
         print("Sorry, but Alpha Beta Pruning agent not implemented yet...")
         exit(0)
 
 
-def create_players():
-    user_name = input("Please enter your name or quit (q): ")
-    if user_name == 'q':
-        exit(0)
-    user = HumanAgent(user_name)
+def create_players(user):
     opponent = create_opponent()
     first_player_message = "Please choose who will play the first move\n"\
         "\t(y) You\n"\
@@ -112,9 +108,9 @@ def create_players():
     return (user, opponent) if first_player == 'y' else (opponent, user)
 
 
-def inrow_game():
+def inrow_game(user):
     # Create players and the env
-    player1, player2 = create_players()
+    player1, player2 = create_players(user)
     board = create_env("4-in-row", player1, player2, (6, 7))
 
     # Start the game
@@ -125,6 +121,8 @@ def inrow_game():
                 f"{player1.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
             board.render()
             board.apply_action(player1, player1.choose_action(board))
+            if board.is_terminal_state():
+                break
             print(
                 f"{player2.name} turn.\tThe time from the start of the game is {time()-start_time} (sec)")
             board.render()
@@ -132,21 +130,38 @@ def inrow_game():
 
     # Except to the computer timeout
     except PlayerTimeout as to:
-        print(f"The time of {to.player.name} is out.")
-        user_name = player1.name if to.player == player2 else player2.name
-        print(f"{user_name} won!, {to.player.name} loss...")
+        result_render(board, start_time, 'to', user, to.player)
         return None
 
     # Print the result
-    total_time = time() - start_time
     if board.player_status(player1) > 0:
-        print(f"{player1.name} won!, {player2.name} loss...")
+        result_render(board, start_time, 'go', player1, player2)
     elif board.player_status(player1) < 0:
-        print(f"{player2.name} won!, {player1.name} loss...")
+        result_render(board, start_time, 'go', player2, player1)
     else:
+        result_render(board, start_time, 'd')
+
+
+def result_render(board, start_time, result, winner=None, losser=None):
+    print("Game over (tm)")
+    board.render()
+    if result == 'go':
+        print(f"{winner.name} won!, {losser.name} loss...")
+    elif result == 'to':
+        print(f"The time of {losser.name} is out.")
+        print(f"{winner.name} won!, {losser.name} loss...")
+    elif result == 'd':
         print("draw")
-    print(f"The total time of the game is {total_time} (sec)")
+    print(f"The total time of the game is {time() - start_time} (sec)")
 
 
 if __name__ == "__main__":
-    inrow_game()
+    print("Welcome to the AI 4-in-row game!!!")
+    user_name = input("Please enter your name or quit (q): ")
+    if user_name == 'q':
+        exit(0)
+    user = HumanAgent(user_name)
+    while True:
+        inrow_game(user)
+        user_exit_message = "Please start new game (n)"
+        user_input(user_exit_message, 'c', ('n'))
