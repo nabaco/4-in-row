@@ -3,6 +3,8 @@ from agents import *
 from itertools import product
 from time import time
 
+POWER = 5
+
 
 # Heuristic function for "4 in row" game
 def inrow_heuristic(env, player, weight=0):
@@ -50,9 +52,15 @@ def inrow_heuristic(env, player, weight=0):
 
                     # calculate the score of both directions
                     if counter_p * counter_n > 0:
-                        score += (counter_p + counter_n)**5
+                        score += score_func(counter_p + counter_n, weight)
                     else:
-                        score += (counter_p)**5 + (counter_n)**5
+                        score += score_func(counter_p, weight) + \
+                            score_func(counter_n, weight)
+    return score
+
+
+def score_func(count, weight):
+    score = count**POWER
 
     # return score of the env by weight.
     # If weight > 0: the agent is passive!
@@ -60,10 +68,9 @@ def inrow_heuristic(env, player, weight=0):
     # If weight = 0: the agent is neutral!
     if weight > 0:
         return score*weight if score > 0 else score
-    elif weight < 0:
+    if weight < 0:
         return score*-weight if score < 0 else score
-    else:
-        return score
+    return score
 
 
 # Helper function to count len of symbols array that we have in some direction
