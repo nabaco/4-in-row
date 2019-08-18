@@ -41,7 +41,7 @@ class LinearRegressionModel(Model):
             for i in range(epochs):
                 self.weights = self.gd(dm_X, Y, learn_rate)
 
-        # 'Normal equation' method if learn_rate and epochs wasn't given
+        # 'Normal equation' method if learn_rate or epochs wasn't given
         else:
             self.weights = np.linalg.inv(dm_X.T @ dm_X) @ dm_X.T @ Y
 
