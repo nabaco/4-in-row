@@ -73,12 +73,3 @@ class LogisticRegressionModel(Model):
     def loss(self, y_prediction, y_true):
         """ Cross entropy loss i.e. logistic loss."""
         return -np.mean(y_true * np.log(y_prediction) + (1-y_true) * np.log(1-y_prediction))
-
-
-x = np.array([0.2, 0.31, 0.41, 0.49, 0.63, 0.8, 1.0])
-y = np.array([0.35, 0.44, 0.53, 0.67, 0.7, 0.99, 1.3])
-
-X = np.array([x]).transpose()
-Y = np.array([y, y]).transpose()
-
-reg = LinearRegressionModel(1, 2)
