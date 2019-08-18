@@ -30,7 +30,7 @@ class LinearRegressionModel(Model):
         Arguments:
             X (array): Dataset.
             Y (array): True values.
-            Argument for 'Gradient Descent' method:
+            Arguments for 'Gradient Descent' method:
                 epochs (int): Num of iteration on GD function.
                 learn_rate (float): The rate of the learning of the model.
         """
@@ -50,7 +50,7 @@ class LinearRegressionModel(Model):
         new_weights = np.copy(self.weights)
         for (i, j), _ in np.ndenumerate(new_weights):
             new_weights[i, j] -= learn_rate * np.mean(
-                (np.squeeze(np.asarray(dm_X @ self.weights[:, j])) - Y[:, j]) * dm_X[:, i])
+                (np.squeeze(dm_X @ self.weights[:, j]) - Y[:, j]) * dm_X[:, i])
         return new_weights
 
     def loss(self, Y_prediction, Y_true):
