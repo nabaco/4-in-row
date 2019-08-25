@@ -38,24 +38,17 @@ class LinearRegressionModel(Model):
 
         # 'Gradient Descent' method if learn_rate and epochs was given
         if learn_rate and epochs:
-            for i in range(epochs):
-                self.weights = self.gd(dm_X, Y, learn_rate)
+            for _ in range(epochs):
+                self.weights -= (learn_rate /
+                                 Y.shape[0]) * dm_X.T @ (dm_X @ self.weights - Y)
 
         # 'Normal equation' method if learn_rate or epochs wasn't given
         else:
             self.weights = np.linalg.inv(dm_X.T @ dm_X) @ dm_X.T @ Y
 
-    def gd(self, dm_X, Y, learn_rate):
-        """Apply one step in the descent of the Loss function"""
-        new_weights = np.copy(self.weights)
-        for (i, j), _ in np.ndenumerate(new_weights):
-            new_weights[i, j] -= learn_rate * np.mean(
-                (np.squeeze(dm_X @ self.weights[:, j]) - Y[:, j]) * dm_X[:, i])
-        return new_weights
-
     def loss(self, Y_prediction, Y_true):
         """ Mean Squared Error (MSE) loss."""
-        return 0.5 * np.mean((Y_prediction - Y_true)**2)
+        return 0.5 * (1/Y_prediction.shape[0]) * Y_prediction.T @ Y_true
 
 
 class LogisticRegressionModel(Model):
