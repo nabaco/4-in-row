@@ -38,7 +38,7 @@ class LinearRegressionModel(Model):
 
         # 'Gradient Descent' method if learn_rate and epochs was given
         if learn_rate and epochs:
-            for _ in range(epochs):
+            for _ in range(epochs): # Calculate the new weights by vectorization approach
                 self.weights -= (learn_rate /
                                  Y.shape[0]) * dm_X.T @ (dm_X @ self.weights - Y)
 
