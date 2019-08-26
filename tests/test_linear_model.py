@@ -1,11 +1,16 @@
-from models.linear_model import LinearRegressionModel, LogisticRegressionModel
 import pytest
-from sklearn.linear_model import LinearRegression as SKLinearRegression
 import numpy as np
+from models.linear_model import LinearRegressionModel, LogisticRegressionModel
+from sklearn.linear_model import LinearRegression as SKLinearRegression
+from sklearn.metrics import mean_squared_error
 
 BATCH_SIZE = 1000
 ACCEPTABLE_BASIC_ERROR = 1e-10
 ACCEPTABLE_GD_ERROR = 1e-3
+ACCEPTABLE_BASIC_LOSS = 1e-10
+ACCEPTABLE_GD_LOSS = 0.1
+ACCEPTABLE_NUMERIC_ERROR = 1e-6
+
 
 @pytest.mark.parametrize(
     "input_shape, output_shape, epochs, learn_rate, acceptable_r_squared",
@@ -38,9 +43,12 @@ def test_linear_regression(input_shape, output_shape, epochs, learn_rate, accept
     assert r_squared >= acceptable_r_squared
     is_gd = epochs is not None and learn_rate is not None
     acceptable_error = ACCEPTABLE_GD_ERROR if is_gd else ACCEPTABLE_BASIC_ERROR
+    acceptable_loss = ACCEPTABLE_GD_LOSS if is_gd else ACCEPTABLE_BASIC_LOSS
     y_pred = model.predict(X)
     y_sk_pred = sk_model.predict(X)
     assert abs(y_pred-y).max() < acceptable_error
     assert abs(y_pred - y_sk_pred).max() < acceptable_error
+    assert abs(model.loss(y_pred, y) - mean_squared_error(y, y_pred)) < ACCEPTABLE_NUMERIC_ERROR
+    assert model.loss(y_pred, y) < acceptable_loss
 
 
