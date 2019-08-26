@@ -46,10 +46,18 @@ class LinearRegressionModel(Model):
             self.weights = np.linalg.inv(dm_X.T @ dm_X) @ dm_X.T @ Y
 
     def loss(self, Y_prediction, Y_true):
-        """ Mean Squared Error (MSE) loss."""
+        """ Mean Squared Error (MSE) loss.
+
+                      1
+        MSE(Y, Y') = --- sum(i=0,N) ||y_i - y_i'||^2
+                     2N
+
+        Where ||x|| is the L2 norm of a vector 'x',
+        y_i, y_i' are i-th samples from the batches Y, Y' respectively.
+        """
         residual = (Y_prediction - Y_true)
-        residual_norm_squared = np.sum(residual**2, axis=-1)
-        return 0.5 * residual_norm_squared.mean()
+        residual_norm_squared = np.sum(residual**2, axis=-1)  # ||y_i - y_i||^2
+        return 0.5 * np.mean(residual_norm_squared)
 
 
 class LogisticRegressionModel(Model):
