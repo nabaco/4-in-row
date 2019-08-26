@@ -1,7 +1,6 @@
 from .model_base import Model
 import numpy as np
 
-
 class LinearRegressionModel(Model):
     """
     A model for Linear Regression.
@@ -48,7 +47,9 @@ class LinearRegressionModel(Model):
 
     def loss(self, Y_prediction, Y_true):
         """ Mean Squared Error (MSE) loss."""
-        return 0.5 * (1/Y_prediction.shape[0]) * Y_prediction.T @ Y_true
+        residual = (Y_prediction - Y_true)
+        residual_norm_squared = np.sum(residual**2, axis=-1)
+        return 0.5 * residual_norm_squared.mean()
 
 
 class LogisticRegressionModel(Model):
