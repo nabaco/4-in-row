@@ -8,7 +8,7 @@ __all__ = ['import_dataset']
 
 DATASETS = {
     'house prices uk': {
-        'url': r'https://github.com/datasets/house-prices-uk/blob/master/data/data.csv',
+        'url': r'https://pkgstore.datahub.io/core/house-prices-uk/data_csv/data/678865a5ff34fcce2145b857b8a9f248/data_csv.csv',
         'path': r'./house_prices_uk.data.csv'
     },
     'breast cancer':
