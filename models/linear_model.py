@@ -28,8 +28,8 @@ class LinearRegressionModel(Model):
         """
         Training the model by dataset X and the true values of Y.
         Arguments:
-            X (array): Dataset.
-            Y (array): True values.
+            X (np.ndarray): Dataset.
+            Y (np.ndarray): True values.
             Arguments for 'Gradient Descent' method:
                 epochs (int): Num of iteration on GD function.
                 learn_rate (float): The rate of the learning of the model.
