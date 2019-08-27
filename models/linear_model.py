@@ -52,12 +52,16 @@ class LinearRegressionModel(Model):
         MSE(Y, Y') = --- sum(i=0,N) ||y_i - y_i'||^2
                      2N
 
-        Where ||x|| is the L2 norm of a vector 'x',
+        Where ||x|| is the L2 norm of a vector 'x' of dimension C,
         y_i, y_i' are i-th samples from the batches Y, Y' respectively.
+        This simplifies to:
+
+                      1
+        MSE(Y, Y') = --- sum(i=0,N) sum(k=1,C) (y[i,k] - y'[i,k])^2
+                     2N
         """
-        residual = (Y_prediction - Y_true)
-        residual_norm_squared = np.sum(residual**2, axis=-1)  # ||y_i - y_i||^2
-        return 0.5 * np.mean(residual_norm_squared)
+        batch_size = Y_true.shape[0]
+        return 1 / (2*batch_size) * np.sum((Y_true - Y_prediction)**2)
 
 
 class LogisticRegressionModel(Model):
