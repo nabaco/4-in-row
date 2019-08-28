@@ -61,14 +61,46 @@ class LinearRegressionModel(Model):
 class LogisticRegressionModel(Model):
     """
     A model for Logistic Regression i.e. classification.
-    TODO - Implement!
+    Arguments:
+        input_features (int)
     """
 
-    def predict(self, X):
-        pass
+    def __init__(self, input_features, output_features):
+        self.input_features = input_features
+        self.weights = np.zeros((input_features + 1, 1))
 
-    def fit(self, X, y, epochs=None):
-        pass
+    @staticmethod
+    def design_matrix(X):
+        """Take dataset X and return the design-matrix (dm_X)"""
+        return np.c_[np.ones(X.shape[0]), X]
+
+    @staticmethod
+    def sigmoid_fn(z):
+        """Calculate the Sigmoid function of a numpy array or a scalar"""
+        return 1/(1+np.exp(-z))
+
+    def predict(self, X):
+        """Predict the output after training by given dataset X"""
+        # Calculate the probability of each input to be True (1)
+        prob_matrix = self.sigmoid_fn(self.design_matrix(X) @ self.weights)
+        # Return 1 if probability > 0.5 else 0
+        return  np.round(prob_matrix)
+
+    def fit(self, X, y, epochs=None, learn_rate=None):
+        """
+        Training the model by dataset X and the true values of Y.
+        Arguments:
+            X (array): Dataset.
+            Y (array): True values.
+            epochs (int): Num of iteration on GD function.
+            learn_rate (float): The rate of the learning of the model.
+        """
+        dm_X = self.design_matrix(X)
+
+        # 'Gradient Descent' method:
+        for i in range(epochs):
+            self.weights = self.gd(dm_X, Y, learn_rate)
+
 
     def loss(self, y_prediction, y_true):
         """ Cross entropy loss i.e. logistic loss."""
