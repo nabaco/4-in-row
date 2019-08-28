@@ -1,6 +1,7 @@
 from .model_base import Model
 import numpy as np
 
+
 class LinearRegressionModel(Model):
     """
     A model for Linear Regression.
@@ -37,7 +38,7 @@ class LinearRegressionModel(Model):
 
         # 'Gradient Descent' method if learn_rate and epochs was given
         if learn_rate and epochs:
-            for _ in range(epochs): # Calculate the new weights by vectorization approach
+            for _ in range(epochs):  # Calculate the new weights by vectorization approach
                 self.weights -= (learn_rate /
                                  Y.shape[0]) * dm_X.T @ (dm_X @ self.weights - Y)
 
@@ -71,7 +72,7 @@ class LogisticRegressionModel(Model):
         input_features (int)
     """
 
-    def __init__(self, input_features, output_features):
+    def __init__(self, input_features):
         self.input_features = input_features
         self.weights = np.zeros((input_features + 1, 1))
 
@@ -82,31 +83,39 @@ class LogisticRegressionModel(Model):
 
     @staticmethod
     def sigmoid_fn(z):
-        """Calculate the Sigmoid function of a numpy array or a scalar"""
+        """Calculate the Sigmoid-function of an array or a scalar"""
         return 1/(1+np.exp(-z))
 
-    def predict(self, X):
-        """Predict the output after training by given dataset X"""
-        # Calculate the probability of each input to be True (1)
+    def predict(self, X, prob=False):
+        """
+        Predict the output after training by given dataset X
+        Arguments:
+            X (np.ndarray): dataset.
+            prob (bool):
+                True - return the probability of each case to be true (1).
+                False - return the prediction of each case 1 or 0.
+        """
+        # Calculate the probability of each case to be True (1)
         prob_matrix = self.sigmoid_fn(self.design_matrix(X) @ self.weights)
-        # Return 1 if probability > 0.5 else 0
-        return  np.round(prob_matrix)
+
+        return prob_matrix if prob else np.round(prob_matrix) # Return 1 if probability > 0.5 else 0
 
     def fit(self, X, y, epochs=None, learn_rate=None):
         """
-        Training the model by dataset X and the true values of Y.
+        Training the model by dataset X and the true values of y.
         Arguments:
-            X (array): Dataset.
-            Y (array): True values.
+            X (np.ndarray): Dataset.
+            Y (np.ndarray): True values.
             epochs (int): Num of iteration on GD function.
             learn_rate (float): The rate of the learning of the model.
         """
         dm_X = self.design_matrix(X)
 
-        # 'Gradient Descent' method:
-        for i in range(epochs):
-            self.weights = self.gd(dm_X, Y, learn_rate)
-
+        # 'Gradient Descent' method
+        if learn_rate and epochs:
+            for _ in range(epochs):  # Calculate the new weights by vectorization approach
+                self.weights -= (learn_rate /
+                                 y.shape[0]) * dm_X.T @ (self.sigmoid_fn(dm_X @ self.weights) - y)
 
     def loss(self, y_prediction, y_true):
         """ Cross entropy loss i.e. logistic loss."""
