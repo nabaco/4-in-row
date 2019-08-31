@@ -25,18 +25,24 @@ class LinearRegressionModel(Model):
         """Take dataset X and return the design-matrix (dm_X)"""
         return np.c_[np.ones(X.shape[0]), X]
 
-    def normalize_matrix(self, X):
+    def normalize_matrix(self, X, fit):
         """Take dataset X and return the normalize matrix"""
-        self.mean = np.array([np.mean(col) for col in X.T])
-        self.std = np.array([np.std(col) for col in X.T])
+        if fit:
+            self.mean = X.mean(axis=0)
+            self.std = X.std(axis=0)
+            if 0 in self.std:
+                raise ValueError(
+                    'The variance of the data is 0, meaning prediction has no meaning.')
+
         return (X - self.mean) / self.std
 
     def predict(self, X):
         """Predict the output after training by given dataset X"""
-        if self.normalize: # Normalize the dataset, compute and convert the prediction
-            return self.design_matrix(self.normalize_matrix(X)) @ self.weights
+        if self.normalize:
+            return self.design_matrix(self.normalize_matrix(X, False)) @ self.weights
 
-        return self.design_matrix(X) @ self.weights # Predict without normalization
+        # Predict without normalization
+        return self.design_matrix(X) @ self.weights
 
     def fit(self, X, Y, epochs=None, learn_rate=None):
         """
@@ -48,8 +54,8 @@ class LinearRegressionModel(Model):
                 epochs (int): Num of iteration on GD function.
                 learn_rate (float): The rate of the learning of the model.
         """
-        if self.normalize: # Normalize the matrix
-            dm_X = self.design_matrix(self.normalize_matrix(X))
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, True))
         else:
             dm_X = self.design_matrix(X)
 
@@ -98,7 +104,6 @@ class LogisticRegressionModel(Model):
             self.std = np.zeros(input_features)
             self.mean = np.zeros(input_features)
 
-
     @staticmethod
     def design_matrix(X):
         """Take dataset X and return the design-matrix (dm_X)"""
@@ -109,10 +114,15 @@ class LogisticRegressionModel(Model):
         """Calculate the Sigmoid-function of an array or a scalar"""
         return 1/(1+np.exp(-z))
 
-    def normalize_matrix(self, X):
+    def normalize_matrix(self, X, fit):
         """Take dataset X and return the normalize matrix"""
-        self.mean = np.array([np.mean(col) for col in X.T])
-        self.std = np.array([np.std(col) for col in X.T])
+        if fit:
+            self.mean = X.mean(axis=0)
+            self.std = X.std(axis=0)
+            if 0 in self.std:
+                raise ValueError(
+                    'The variance of the data is 0, meaning prediction has no meaning.')
+
         return (X - self.mean) / self.std
 
     def predict(self, X, prob=False):
@@ -124,15 +134,15 @@ class LogisticRegressionModel(Model):
                 True - return the probability of each case to be true (1).
                 False - return the prediction of each case 1 or 0.
         """
-        if self.normalize: # Normalize the matrix
-            dm_X = self.design_matrix(self.normalize_matrix(X))
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, False))
         else:
             dm_X = self.design_matrix(X)
 
         # Calculate the probability of each case to be True (1)
         prob_matrix = self.sigmoid_fn(dm_X @ self.weights)
-
-        return prob_matrix if prob else np.round(prob_matrix) # Return 1 if probability > 0.5 else 0
+        # Return 1 if probability > 0.5 else 0
+        return prob_matrix if prob else np.round(prob_matrix)
 
     def fit(self, X, y, epochs=None, learn_rate=None):
         """
@@ -143,8 +153,8 @@ class LogisticRegressionModel(Model):
             epochs (int): Num of iteration on GD function.
             learn_rate (float): The rate of the learning of the model.
         """
-        if self.normalize: # Normalize the matrix
-            dm_X = self.design_matrix(self.normalize_matrix(X))
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, True))
         else:
             dm_X = self.design_matrix(X)
 
@@ -157,17 +167,3 @@ class LogisticRegressionModel(Model):
     def loss(self, y_prediction, y_true):
         """ Cross entropy loss i.e. logistic loss."""
         return -np.mean(y_true * np.log(y_prediction) + (1-y_true) * np.log(1-y_prediction))
-
-
-
-
-x = np.array([0.2, 0.31, 0.41, 0.49, 0.63, 0.8, 1.0])
-
-y = np.array([0.35, 0.44, 0.53, 0.67, 0.7, 0.99, 1.3])
-
-X = np.array([x]).transpose()
-
-Y = np.array([y]).transpose()
-
-reg = LinearRegressionModel(1, 1, False)
-reg_n = LinearRegressionModel(1,1,True)
