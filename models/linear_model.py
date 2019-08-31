@@ -8,20 +8,40 @@ class LinearRegressionModel(Model):
     Arguments:
         input_features (int)
         output_features (int)
+        normalize (bool)
     """
 
-    def __init__(self, input_features, output_features):
+    def __init__(self, input_features, output_features, normalize=False):
         self.input_features = input_features
         self.output_features = output_features
         self.weights = np.zeros((input_features + 1, output_features))
+        self.normalize = normalize
+        if normalize:
+            self.std = np.zeros(input_features)
+            self.mean = np.zeros(input_features)
 
     @staticmethod
     def design_matrix(X):
         """Take dataset X and return the design-matrix (dm_X)"""
         return np.c_[np.ones(X.shape[0]), X]
 
+    def normalize_matrix(self, X, fit):
+        """Take dataset X and return the normalize matrix"""
+        if fit:
+            self.mean = X.mean(axis=0)
+            self.std = X.std(axis=0)
+            if 0 in self.std:
+                raise ValueError(
+                    'The variance of the data is 0, meaning prediction has no meaning.')
+
+        return (X - self.mean) / self.std
+
     def predict(self, X):
         """Predict the output after training by given dataset X"""
+        if self.normalize:
+            return self.design_matrix(self.normalize_matrix(X, False)) @ self.weights
+
+        # Predict without normalization
         return self.design_matrix(X) @ self.weights
 
     def fit(self, X, Y, epochs=None, learn_rate=None):
@@ -34,7 +54,10 @@ class LinearRegressionModel(Model):
                 epochs (int): Num of iteration on GD function.
                 learn_rate (float): The rate of the learning of the model.
         """
-        dm_X = self.design_matrix(X)
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, True))
+        else:
+            dm_X = self.design_matrix(X)
 
         # 'Gradient Descent' method if learn_rate and epochs was given
         if learn_rate and epochs:
@@ -70,11 +93,16 @@ class LogisticRegressionModel(Model):
     A model for Logistic Regression i.e. classification.
     Arguments:
         input_features (int)
+        normalize (bool)
     """
 
-    def __init__(self, input_features):
+    def __init__(self, input_features, normalize=False):
         self.input_features = input_features
         self.weights = np.zeros((input_features + 1, 1))
+        self.normalize = normalize
+        if normalize:
+            self.std = np.zeros(input_features)
+            self.mean = np.zeros(input_features)
 
     @staticmethod
     def design_matrix(X):
@@ -86,6 +114,17 @@ class LogisticRegressionModel(Model):
         """Calculate the Sigmoid-function of an array or a scalar"""
         return 1/(1+np.exp(-z))
 
+    def normalize_matrix(self, X, fit):
+        """Take dataset X and return the normalize matrix"""
+        if fit:
+            self.mean = X.mean(axis=0)
+            self.std = X.std(axis=0)
+            if 0 in self.std:
+                raise ValueError(
+                    'The variance of the data is 0, meaning prediction has no meaning.')
+
+        return (X - self.mean) / self.std
+
     def predict(self, X, prob=False):
         """
         Predict the output after training by given dataset X
@@ -95,10 +134,15 @@ class LogisticRegressionModel(Model):
                 True - return the probability of each case to be true (1).
                 False - return the prediction of each case 1 or 0.
         """
-        # Calculate the probability of each case to be True (1)
-        prob_matrix = self.sigmoid_fn(self.design_matrix(X) @ self.weights)
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, False))
+        else:
+            dm_X = self.design_matrix(X)
 
-        return prob_matrix if prob else np.round(prob_matrix) # Return 1 if probability > 0.5 else 0
+        # Calculate the probability of each case to be True (1)
+        prob_matrix = self.sigmoid_fn(dm_X @ self.weights)
+        # Return 1 if probability > 0.5 else 0
+        return prob_matrix if prob else np.round(prob_matrix)
 
     def fit(self, X, y, epochs=None, learn_rate=None):
         """
@@ -109,7 +153,10 @@ class LogisticRegressionModel(Model):
             epochs (int): Num of iteration on GD function.
             learn_rate (float): The rate of the learning of the model.
         """
-        dm_X = self.design_matrix(X)
+        if self.normalize:  # Normalize the matrix
+            dm_X = self.design_matrix(self.normalize_matrix(X, True))
+        else:
+            dm_X = self.design_matrix(X)
 
         # 'Gradient Descent' method
         if learn_rate and epochs:
