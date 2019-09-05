@@ -3,6 +3,7 @@ This file contains a function to download and extract a dataset.
 """
 import urllib.request
 import zipfile
+import os.path
 
 __all__ = ['import_dataset']
 
@@ -18,7 +19,9 @@ DATASETS = {
 
 
 def import_dataset(name):
-    # TODO - finish implementing - if the data already exists don't import it again!
+    if os.path.isfile(DATASETS[name]['path']):
+        return None
+
     if name not in DATASETS:
         raise ValueError("This dataset is not supported yet.")
     url, local_path = DATASETS[name]['url'], DATASETS[name]['path']
@@ -31,7 +34,3 @@ def import_dataset(name):
         with zipfile.ZipFile(local_path) as archive:
             archive.extractall('.')
         print("Extracting complete.")
-
-
-
-
