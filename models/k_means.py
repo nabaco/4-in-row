@@ -42,12 +42,12 @@ class KMeans(Model):
         # Save the best result to the self.cluster_centers
         self.cluster_centers = cluster_centers
 
-    def k_means(self, X, iter):
+    def k_means(self, X, n_iter):
         """K-Means algorithm to minimize the loss function"""
         # Initialization of cluster centers
         self.cluster_centers = self.random_init(X)
 
-        for _ in range(iter):
+        for _ in range(n_iter):
             # Associate each sample to cluster
             labels = self.predict(X)
 
