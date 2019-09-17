@@ -20,32 +20,37 @@ class KMeans(Model):
         """Random initialization of cluster centers"""
         return np.array(choices(X, k=self.n_clusters))
 
-    def fit(self, X, n_iter, n_init):
+    def fit(self, X, n_iter, n_init, init_cluster_centers=None):
         """
         Training the model by dataset X.
         Arguments:
             X (np.ndarray): Dataset.
             n_iter (int): Num of iteration.
             n_init (int): Num of algorithm iteration to avoid local minimum.
+            init_cluster_centers (np.ndarray): Initial values of cluster_centers.
         """
         # Initialize loss value end final cluster_centers matrix
         loss = float("inf")
-        cluster_centers = np.zeros((self.n_clusters, self.n_features))
+        best_cluster_centers = np.zeros((self.n_clusters, self.n_features))
 
         # Run k_means algorithm n_init times (to avoid local minimum) and save the best result
         for _ in range(n_init):
-            self.k_means(X, n_iter)
+            self.k_means(X, n_iter, init_cluster_centers)
             temp_cc = self.cluster_centers
             if self.loss(X, self.predict(X)) < loss:
-                cluster_centers = temp_cc
+                best_cluster_centers = temp_cc
 
         # Save the best result to the self.cluster_centers
-        self.cluster_centers = cluster_centers
+        self.cluster_centers = best_cluster_centers
 
-    def k_means(self, X, n_iter):
+    def k_means(self, X, n_iter, init_cluster_centers):
         """K-Means algorithm to minimize the loss function"""
+
         # Initialization of cluster centers
-        self.cluster_centers = self.random_init(X)
+        if init_cluster_centers is None:
+            self.cluster_centers = self.random_init(X)
+        else:
+            self.cluster_centers = init_cluster_centers
 
         for _ in range(n_iter):
             # Associate each sample to cluster
@@ -57,6 +62,17 @@ class KMeans(Model):
             for sample, label in zip(X, labels):
                 samples_sum[int(label)] += sample
                 count[int(label)] += 1
+
+            # Check if we have an empty cluster
+            if 0 in count:
+                new_center = self.farest_sample(X, count)
+                for k in range(self.n_clusters):
+                    # Assign new cluster to the farest sample from the bigest cluster
+                    if count[k, 0] == 0:
+                        self.cluster_centers[k] = new_center
+                    else:                       # Normal cluster center appdate
+                        self.cluster_centers[k] = samples_sum[k] / count[k]
+                continue
 
             self.cluster_centers = samples_sum / count
 
@@ -76,3 +92,9 @@ class KMeans(Model):
             loss += np.linalg.norm(sample -
                                    self.cluster_centers[int(label)])**2
         return loss
+
+    def farest_sample(self, X, count):
+        """Return the farest sample from the bigest cluster"""
+        index = max(range(self.n_clusters), key=lambda k: int(count[k]))
+        largest_cluster = self.cluster_centers[index]
+        return max(X, key=lambda x: np.linalg.norm(x - largest_cluster))
