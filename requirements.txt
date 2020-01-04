@@ -3,3 +3,6 @@ scikit-learn
 pandas
 scipy
 jupyter
+keras
+os
+matplotlib
