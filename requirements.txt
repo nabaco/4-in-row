@@ -4,5 +4,4 @@ pandas
 scipy
 jupyter
 Keras
-os
 matplotlib
